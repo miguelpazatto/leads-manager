@@ -27,7 +27,7 @@ Diferente de sistemas básicos, utilizamos **Enums Turbinados** para `LeadStatus
 A inteligência de pontuação reside exclusivamente na camada de **Service**. Ao persistir o `totalScore` no banco, permitimos que o vendedor ordene sua lista de contatos instantaneamente, focando no que realmente traz retorno financeiro.
 
 ### 📊 Diagrama UML
-![Diagrama UML do Projeto](doc/uml-diagram.png)
+![Diagrama UML do Projeto](doc/uml-diagram.jpg)
 *(O mapa que guia a construção das entidades, relacionamentos e a classe associativa de respostas)*
 
 ---
