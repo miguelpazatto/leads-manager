@@ -2,6 +2,7 @@ package com.miguelpazatto.leadsmanager.entities;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 
@@ -9,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -37,5 +40,10 @@ public class Lead implements Serializable {
 	
 	private LeadStatus leadStatus;
 	private LeadClassification leadClassification;
+	
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "salesman_id")
+	private Salesman assignedTo;
 	
 }
