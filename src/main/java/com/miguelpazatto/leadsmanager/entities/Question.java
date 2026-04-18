@@ -1,11 +1,14 @@
 package com.miguelpazatto.leadsmanager.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,6 +28,9 @@ public class Question implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String statement;
+	
+	@OneToMany(mappedBy = "question")
+	private List<Option> options = new ArrayList<>();
 	
 	public Question(Long id, String statement) {
 		this.id = id;

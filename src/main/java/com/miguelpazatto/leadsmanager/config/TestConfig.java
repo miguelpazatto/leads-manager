@@ -41,12 +41,12 @@ public class TestConfig implements CommandLineRunner {
 		
 		questionRepository.saveAll(List.of(q1, q2));
 		
-		Option o1 = new Option(null, "Sim, me sinto indisposto", 1);
-		Option o2 = new Option(null, "Depende muito do dia", 2);
-		Option o3 = new Option(null, "Me sinto muito disposto", 3);
-		Option o4 = new Option(null, "Estresse das reuniões do dia a dia", 1);
-		Option o5 = new Option(null, "Cansaço das viagens de negócios", 2);
-		Option o6 = new Option(null, "Não ter tempo pra cuidar de mim como PF", 3);
+		Option o1 = new Option(null, "Sim, me sinto indisposto", 1, q1);
+		Option o2 = new Option(null, "Depende muito do dia", 2, q1);
+		Option o3 = new Option(null, "Me sinto muito disposto", 3, q1);
+		Option o4 = new Option(null, "Estresse das reuniões do dia a dia", 1, q2);
+		Option o5 = new Option(null, "Cansaço das viagens de negócios", 2, q2);
+		Option o6 = new Option(null, "Não ter tempo pra cuidar de mim como PF", 3, q2);
 		
 		optionRepository.saveAll(List.of(o1, o2, o3, o4, o5, o6));
 		
