@@ -3,6 +3,7 @@ package com.miguelpazatto.leadsmanager.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.miguelpazatto.leadsmanager.entities.pk.AnswerPK;
 
 import jakarta.persistence.EmbeddedId;
@@ -33,6 +34,7 @@ public class Answer implements Serializable {
 		id.setOption(option);
 	}
 	
+	@JsonIgnore
 	public Lead getLead() {
 		return id.getLead();
 	}

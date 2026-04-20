@@ -40,6 +40,7 @@ public class Option implements Serializable {
 	@JoinColumn(name = "question_id")
 	private Question question;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "id.option")
 	private List<Answer> leads = new ArrayList<>();
 
