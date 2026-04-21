@@ -17,14 +17,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "tb_lead")
-@Getter
-@Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded=true)
 @NoArgsConstructor
 public class Lead implements Serializable {
@@ -39,8 +35,8 @@ public class Lead implements Serializable {
 	private String phone;
 	private Integer totalScore;
 	
-	private LeadStatus leadStatus;
-	private LeadClassification leadClassification;
+	private Integer leadStatus;
+	private Integer leadClassification;
 	
 	@JsonIgnore
 	@ManyToOne
@@ -58,10 +54,87 @@ public class Lead implements Serializable {
 		this.email = email;
 		this.phone = phone;
 		this.totalScore = totalScore;
-		this.leadStatus = leadStatus;
-		this.leadClassification = leadClassification;
+		setLeadStatus(leadStatus);
+		setLeadClassification(leadClassification);
 		this.assignedTo = assignedTo;
 	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public Integer getTotalScore() {
+		return totalScore;
+	}
+
+	public void setTotalScore(Integer totalScore) {
+		this.totalScore = totalScore;
+	}
+
+	public LeadStatus getLeadStatus() {
+		return LeadStatus.valueOf(leadStatus);
+	}
+
+	public void setLeadStatus(LeadStatus leadStatus) {
+		if (leadStatus != null) {
+			this.leadStatus = leadStatus.getCode();
+		}
+	}
+
+	public LeadClassification getLeadClassification() {
+		return LeadClassification.valueOf(leadClassification);
+	}
+
+	public void setLeadClassification(LeadClassification leadClassification) {
+		if (leadClassification != null) {
+			this.leadClassification = leadClassification.getCode();
+		}
+	}
+
+	public Salesman getAssignedTo() {
+		return assignedTo;
+	}
+
+	public void setAssignedTo(Salesman assignedTo) {
+		this.assignedTo = assignedTo;
+	}
+
+	public List<Answer> getOptions() {
+		return options;
+	}
+
+	public void setOptions(List<Answer> options) {
+		this.options = options;
+	}
+
 	
 	
 	
