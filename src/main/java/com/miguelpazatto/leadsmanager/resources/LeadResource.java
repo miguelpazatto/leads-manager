@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.services.LeadService;
 
@@ -20,8 +21,8 @@ public class LeadResource {
 	private LeadService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Lead>> findAll() {
-		List<Lead> leads =  service.findAll();
+	public ResponseEntity<List<LeadSalesDTO>> findAll() {
+		List<LeadSalesDTO> leads =  service.findAll();
 		return ResponseEntity.ok().body(leads);
 	}
 	

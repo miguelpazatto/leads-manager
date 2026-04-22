@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 
@@ -15,8 +16,9 @@ public class LeadService {
 	@Autowired
 	private LeadRepository repository;
 	
-	public List<Lead> findAll() {
-		return repository.findAll();
+	public List<LeadSalesDTO> findAll() {
+		List<Lead> leads = repository.findAll();
+		return leads.stream().map(LeadSalesDTO::new).toList();
 	}
 	
 	public Lead findById(Long id) {
