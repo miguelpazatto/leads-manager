@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.services.QuestionService;
 
@@ -20,14 +21,14 @@ public class QuestionResource {
 	private QuestionService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Question>> findAll() {
-		List<Question> questions = service.findAll();
+	public ResponseEntity<List<QuestionDTO>> findAll() {
+		List<QuestionDTO> questions = service.findAll();
 		return ResponseEntity.ok().body(questions);
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<Question> findById(@PathVariable Long id) {
-		Question obj = service.findById(id);
+	public ResponseEntity<QuestionDTO> findById(@PathVariable Long id) {
+		QuestionDTO obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 	
