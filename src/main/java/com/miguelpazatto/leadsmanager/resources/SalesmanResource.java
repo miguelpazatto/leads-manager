@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.services.SalesmanService;
 
@@ -20,14 +21,14 @@ public class SalesmanResource {
 	private SalesmanService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Salesman>> findAll() {
-		List<Salesman> salesman = service.findAll();
+	public ResponseEntity<List<SalesmanDTO>> findAll() {
+		List<SalesmanDTO> salesman = service.findAll();
 		return ResponseEntity.ok().body(salesman);
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<Salesman> findById(@PathVariable Long id) {
-		Salesman obj = service.findById(id);
+	public ResponseEntity<SalesmanDTO> findById(@PathVariable Long id) {
+		SalesmanDTO obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 }

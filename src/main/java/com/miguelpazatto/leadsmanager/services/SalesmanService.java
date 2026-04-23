@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
 
@@ -15,13 +16,14 @@ public class SalesmanService {
 	@Autowired
 	private SalesmanRepository repository;
 	
-	public List<Salesman> findAll() {
-		return repository.findAll();
+	public List<SalesmanDTO> findAll() {
+		List<Salesman> salesman = repository.findAll();
+		return salesman.stream().map(SalesmanDTO::new).toList();
 	}
 	
-	public Salesman findById(Long id) {
+	public SalesmanDTO findById(Long id) {
 		Optional<Salesman> obj = repository.findById(id);
-		return obj.orElseThrow();
+		return obj.map(SalesmanDTO::new).orElseThrow();
 	}
 	
 }
