@@ -34,7 +34,6 @@ public class Answer implements Serializable {
 		id.setOption(option);
 	}
 	
-	@JsonIgnore
 	public Lead getLead() {
 		return id.getLead();
 	}

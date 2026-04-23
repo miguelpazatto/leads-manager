@@ -35,12 +35,10 @@ public class Option implements Serializable {
 	private String description;
 	private Integer weight;
 	
-	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "question_id")
 	private Question question;
 	
-	@JsonIgnore
 	@OneToMany(mappedBy = "id.option")
 	private List<Answer> leads = new ArrayList<>();
 

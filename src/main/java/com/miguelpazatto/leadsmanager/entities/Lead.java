@@ -38,7 +38,6 @@ public class Lead implements Serializable {
 	private Integer leadStatus;
 	private Integer leadClassification;
 	
-	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "salesman_id")
 	private Salesman assignedTo;
