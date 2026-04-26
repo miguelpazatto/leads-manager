@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,8 +42,8 @@ public class Lead implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "salesman_id")
 	private Salesman assignedTo;
-	
-	@OneToMany(mappedBy = "id.lead")
+
+	@OneToMany(mappedBy = "id.lead", cascade = CascadeType.ALL, orphanRemoval = true)	 //provisório
 	private List<Answer> options = new ArrayList<>();
 
 	public Lead(Long id, String name, String email, String phone, Integer totalScore, LeadStatus leadStatus,

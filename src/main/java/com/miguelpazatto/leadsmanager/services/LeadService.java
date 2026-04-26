@@ -11,6 +11,8 @@ import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class LeadService {
 
@@ -34,6 +36,29 @@ public class LeadService {
 	
 	public Lead insert(Lead obj) {
 		return repository.save(obj);
+	}
+	
+	public void delete(Long id) {
+		//configurar exception
+		repository.deleteById(id);
+	}
+	
+	public Lead update(Long id, Lead obj) {
+		//configurar exception
+			Lead entity = repository.getReferenceById(id);
+			updateData(entity, obj);
+			return repository.save(entity);
+		
+	}
+	
+	private void updateData(Lead entity, Lead obj) {
+		entity.setName(obj.getName());
+		entity.setEmail(obj.getEmail());
+		entity.setPhone(obj.getPhone());
+		entity.setTotalScore(obj.getTotalScore());
+		entity.setLeadStatus(obj.getLeadStatus());
+		entity.setLeadClassification(obj.getLeadClassification());
+		entity.setAssignedTo(obj.getAssignedTo());
 	}
 	
 }
