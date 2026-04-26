@@ -31,4 +31,9 @@ public class LeadService {
 		Optional<Lead> obj = repository.findById(id);
 		return obj.map(LeadPublicDTO::new).orElseThrow();
 	}
+	
+	public Lead insert(Lead obj) {
+		return repository.save(obj);
+	}
+	
 }
