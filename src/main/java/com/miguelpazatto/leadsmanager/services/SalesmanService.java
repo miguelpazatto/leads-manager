@@ -26,4 +26,26 @@ public class SalesmanService {
 		return obj.map(SalesmanDTO::new).orElseThrow();
 	}
 	
+	public SalesmanDTO insert(Salesman obj) {
+		return new SalesmanDTO(repository.save(obj));
+	}
+	
+	public void delete(Long id) {
+		//config exception
+		repository.deleteById(id);
+	}
+	
+	public SalesmanDTO update(Long id, Salesman obj) {
+		//config exception
+		Salesman entity = repository.getReferenceById(id);
+		updateData(entity, obj);
+		return new SalesmanDTO (repository.save(entity));
+	}
+	
+	private void updateData(Salesman entity, Salesman obj) {
+		entity.setName(obj.getName());
+		entity.setEmail(obj.getEmail());
+		entity.setPhone(obj.getPhone());
+	}
+	
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,7 +33,7 @@ public class Salesman implements Serializable {
 	private String email;
 	private String phone;
 	
-	@OneToMany(mappedBy = "assignedTo")
+	@OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true) //provisório
 	private List<Lead> leads = new ArrayList<>();
 	
 	public Salesman(Long id, String name, String email, String phone) {
