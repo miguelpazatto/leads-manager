@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,7 +40,7 @@ public class Option implements Serializable {
 	@JoinColumn(name = "question_id")
 	private Question question;
 	
-	@OneToMany(mappedBy = "id.option")
+	@OneToMany(mappedBy = "id.option", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Answer> leads = new ArrayList<>();
 
 	public Option(Long id, String description, Integer weight, Question question) {

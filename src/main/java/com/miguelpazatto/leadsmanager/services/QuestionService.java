@@ -26,4 +26,24 @@ public class QuestionService {
 		Optional<Question> obj = repository.findById(id);
 		return obj.map(QuestionDTO::new).orElseThrow();
 	}
+	
+	public QuestionDTO insert(Question obj) {
+		return new QuestionDTO(repository.save(obj));
+	}
+	
+	public void delete(Long id) {
+		//config exception
+		repository.deleteById(id);
+	}
+	
+	public QuestionDTO update(Long id, Question obj) {
+		//config exception
+		Question entity = repository.getReferenceById(id);
+		updateData(entity, obj);
+		return new QuestionDTO(repository.save(entity));
+	}
+	
+	private void updateData(Question entity, Question obj) {
+		entity.setStatement(obj.getStatement());
+	}
 }
