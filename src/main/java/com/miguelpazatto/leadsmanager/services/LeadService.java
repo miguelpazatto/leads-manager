@@ -34,8 +34,8 @@ public class LeadService {
 		return obj.map(LeadPublicDTO::new).orElseThrow();
 	}
 	
-	public Lead insert(Lead obj) {
-		return repository.save(obj);
+	public LeadSalesDTO insert(Lead obj) {
+		return new LeadSalesDTO(repository.save(obj));
 	}
 	
 	public void delete(Long id) {
@@ -43,11 +43,11 @@ public class LeadService {
 		repository.deleteById(id);
 	}
 	
-	public Lead update(Long id, Lead obj) {
+	public LeadSalesDTO update(Long id, Lead obj) {
 		//configurar exception
 			Lead entity = repository.getReferenceById(id);
 			updateData(entity, obj);
-			return repository.save(entity);
+			return new LeadSalesDTO(repository.save(entity));
 		
 	}
 	

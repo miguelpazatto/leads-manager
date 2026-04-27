@@ -46,10 +46,10 @@ public class LeadResource {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Lead> insert(@RequestBody Lead obj) {
-		obj = service.insert(obj);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj);
+	public ResponseEntity<LeadSalesDTO> insert(@RequestBody Lead obj) {
+		LeadSalesDTO dto = service.insert(obj);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+		return ResponseEntity.created(uri).body(dto);
 	}
 	
 	@DeleteMapping(value = "/{id}")
@@ -59,9 +59,9 @@ public class LeadResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<Lead> update(@PathVariable Long id, @RequestBody Lead obj) {
-		obj = service.update(id, obj);
-		return ResponseEntity.ok().body(obj);
+	public ResponseEntity<LeadSalesDTO> update(@PathVariable Long id, @RequestBody Lead obj) {
+		LeadSalesDTO dto = service.update(id, obj);
+		return ResponseEntity.ok().body(dto);
 	}
 	
 }
