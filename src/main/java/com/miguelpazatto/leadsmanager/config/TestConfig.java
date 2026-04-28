@@ -14,7 +14,7 @@ import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
-import com.miguelpazatto.leadsmanager.entities.enums.Role;
+import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 import com.miguelpazatto.leadsmanager.repositories.AnswerRepository;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
@@ -56,8 +56,8 @@ public class TestConfig implements CommandLineRunner {
 		
 		optionRepository.saveAll(List.of(o1, o2, o3, o4, o5, o6));
 		
-		Salesman s1 = new Salesman(null, "Rodrigo", "rodrigo@email.com", "998456728", Role.ADMIN);
-		Salesman s2 = new Salesman(null, "Vinicius", "vinicius@email.com", "997654382", Role.COLLABORATOR);
+		Salesman s1 = new Salesman(null, "Rodrigo", "rodrigo@email.com", "998456728");
+		Salesman s2 = new Salesman(null, "Vinicius", "vinicius@email.com", "997654382");
 		
 		salesmanRepository.saveAll(List.of(s1, s2));
 		

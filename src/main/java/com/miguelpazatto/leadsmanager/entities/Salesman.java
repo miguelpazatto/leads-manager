@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.miguelpazatto.leadsmanager.entities.enums.Role;
+import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -31,17 +31,14 @@ public class Salesman implements Serializable {
 	private String email;
 	private String phone;
 	
-	private Integer role;
-	
 	@OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true) //provisório
 	private List<Lead> leads = new ArrayList<>();
 	
-	public Salesman(Long id, String name, String email, String phone, Role role) {
+	public Salesman(Long id, String name, String email, String phone) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
-		setRole(role);
 	}
 
 	public Long getId() {
@@ -74,16 +71,6 @@ public class Salesman implements Serializable {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-
-	public Role getRole() {
-		return Role.valueof(role);
-	}
-
-	public void setRole(Role role) {
-		if (role != null) {
-			this.role = role.getCode();			
-		}
 	}
 
 	public List<Lead> getLeads() {

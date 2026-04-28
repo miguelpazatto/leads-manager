@@ -2,8 +2,7 @@ package com.miguelpazatto.leadsmanager.entities.enums;
 
 public enum LeadClassification {
 
-	HOT(
-			1, 
+	HOT( 
 			0, 
 			40, 
 			"Performance Crítica",
@@ -13,7 +12,6 @@ public enum LeadClassification {
 			),
 	
 	WARM(
-			2,
 			41,
 			70,
 			"Performance em Alerta",
@@ -23,7 +21,6 @@ public enum LeadClassification {
 			),
 	
 	COLD(
-			3,
 			71,
 			100,
 			"Alta Performance",
@@ -32,7 +29,6 @@ public enum LeadClassification {
 			"Lead de alto nível. Abordagem sênior. Focar em 'exclusividade', 'networking' e 'otimização fina'."
 			);
 	
-	private final int code;
 	private final int min;
 	private final int max;
 	private final String titleLead;
@@ -41,18 +37,13 @@ public enum LeadClassification {
 	private final String messageSales;
 	
 	
-	private LeadClassification(int code, int min, int max, String titleLead, String messageLead, String titleSales, String messageSales) {
-		this.code = code;
+	private LeadClassification(int min, int max, String titleLead, String messageLead, String titleSales, String messageSales) {
 		this.min = min;
 		this.max = max;
 		this.titleLead = titleLead;
 		this.messageLead = messageLead;
 		this.titleSales = titleSales;
 		this.messageSales = messageSales;	
-	}
-	
-	public int getCode() {
-		return code;
 	}
 	
 	public int getMin() {
@@ -79,13 +70,4 @@ public enum LeadClassification {
 		return messageSales;
 	}
 
-	public static LeadClassification valueOf(int code) {
-		for (LeadClassification value : LeadClassification.values()) {
-			if (code == value.getCode()) {
-				return value;
-			}
-		}
-		throw new IllegalArgumentException("Invalid LeadClassification code");
-	}
-	
 }

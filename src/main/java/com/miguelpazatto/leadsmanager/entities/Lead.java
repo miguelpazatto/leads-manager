@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,8 +37,11 @@ public class Lead implements Serializable {
 	private String phone;
 	private Integer totalScore;
 	
-	private Integer leadStatus;
-	private Integer leadClassification;
+	@Enumerated(EnumType.STRING)
+	private LeadStatus leadStatus;
+	
+	@Enumerated(EnumType.STRING)
+	private LeadClassification leadClassification;
 	
 	@ManyToOne
 	@JoinColumn(name = "salesman_id")
@@ -54,8 +58,8 @@ public class Lead implements Serializable {
 		this.email = email;
 		this.phone = phone;
 		this.totalScore = totalScore;
-		setLeadStatus(leadStatus);
-		setLeadClassification(leadClassification);
+		this.leadStatus = leadStatus;
+		this.leadClassification = leadClassification;
 		this.assignedTo = assignedTo;
 	}
 
@@ -100,23 +104,19 @@ public class Lead implements Serializable {
 	}
 
 	public LeadStatus getLeadStatus() {
-		return LeadStatus.valueOf(leadStatus);
+		return leadStatus;
 	}
 
 	public void setLeadStatus(LeadStatus leadStatus) {
-		if (leadStatus != null) {
-			this.leadStatus = leadStatus.getCode();
-		}
+			this.leadStatus = leadStatus;
 	}
 
 	public LeadClassification getLeadClassification() {
-		return LeadClassification.valueOf(leadClassification);
+		return leadClassification;
 	}
 
 	public void setLeadClassification(LeadClassification leadClassification) {
-		if (leadClassification != null) {
-			this.leadClassification = leadClassification.getCode();
-		}
+			this.leadClassification = leadClassification;
 	}
 
 	public Salesman getAssignedTo() {
@@ -135,7 +135,4 @@ public class Lead implements Serializable {
 		this.options = options;
 	}
 
-	
-	
-	
 }

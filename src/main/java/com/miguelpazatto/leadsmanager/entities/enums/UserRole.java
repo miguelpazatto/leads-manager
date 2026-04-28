@@ -1,8 +1,8 @@
 package com.miguelpazatto.leadsmanager.entities.enums;
 
-public enum LeadStatus {
+public enum UserRole {
 
-	NEW,
-	CONTACTED;
+	ADMIN,
+	COLLABORATOR;
 	
 }
