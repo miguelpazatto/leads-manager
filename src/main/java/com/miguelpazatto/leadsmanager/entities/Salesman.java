@@ -39,11 +39,12 @@ public class Salesman implements Serializable {
 	@OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true) //provisório
 	private List<Lead> leads = new ArrayList<>();
 	
-	public Salesman(Long id, String name, String email, String phone) {
+	public Salesman(Long id, String name, String email, String phone, User user) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
+		this.user = user;
 	}
 
 	public Long getId() {

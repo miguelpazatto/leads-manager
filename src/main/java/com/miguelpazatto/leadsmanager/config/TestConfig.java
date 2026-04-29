@@ -27,8 +27,6 @@ import com.miguelpazatto.leadsmanager.repositories.UserRepository;
 @Configuration
 @Profile("test")
 public class TestConfig implements CommandLineRunner {
-
-	//implementar user config e refatorar salesman
 	
 	@Autowired
 	private LeadRepository leadRepository;
@@ -54,8 +52,15 @@ public class TestConfig implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		
 		User u1 = new User("miguelpazatto", passwordEncoder.encode("12345"), UserRole.ADMIN);
+		User u2 = new User("rodrigo", passwordEncoder.encode("senha123"), UserRole.COLLABORATOR);
+	    User u3 = new User("vinicius", passwordEncoder.encode("senha1234"), UserRole.COLLABORATOR);
 		
-		userRepository.save(u1);
+		userRepository.saveAll(List.of(u1, u2, u3));
+		
+		Salesman s1 = new Salesman(null, "Rodrigo", "rodrigo@email.com", "998456728", u2);
+		Salesman s2 = new Salesman(null, "Vinicius", "vinicius@email.com", "997654382", u3);
+		
+		salesmanRepository.saveAll(List.of(s1, s2));
 		
 		Question q1 = new Question(null, "Você se sente indisposto logo ao acordar?");
 		Question q2 = new Question(null, "Qual é o maior limitador da sua performance hoje?");
@@ -71,13 +76,8 @@ public class TestConfig implements CommandLineRunner {
 		
 		optionRepository.saveAll(List.of(o1, o2, o3, o4, o5, o6));
 		
-		Salesman s1 = new Salesman(null, "Rodrigo", "rodrigo@email.com", "998456728");
-		Salesman s2 = new Salesman(null, "Vinicius", "vinicius@email.com", "997654382");
-		
-		salesmanRepository.saveAll(List.of(s1, s2));
-		
-		Lead l1 = new Lead(null, "Miguel", "miguel@email.com", "994568812", 20, LeadStatus.NEW, LeadClassification.HOT, s1);
-		Lead l2 = new Lead(null, "Igor", "igor@email.com", "993876431", 20, LeadStatus.CONTACTED, LeadClassification.WARM, s2);
+		Lead l1 = new Lead(null, "Miguel", "miguel@email.com", "994568812", LeadStatus.NEW, LeadClassification.HOT, s1);
+		Lead l2 = new Lead(null, "Igor", "igor@email.com", "993876431", LeadStatus.CONTACTED, LeadClassification.WARM, s2);
 		
 		leadRepository.saveAll(List.of(l1, l2));
 		

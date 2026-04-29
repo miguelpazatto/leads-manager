@@ -35,9 +35,6 @@ public class AuthenticationResource {
 	private UserRepository repository;
 	
 	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
-	@Autowired
 	private TokenService tokenService;
 	
 	@Autowired

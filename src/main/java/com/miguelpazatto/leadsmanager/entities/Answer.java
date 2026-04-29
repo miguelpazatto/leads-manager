@@ -41,6 +41,10 @@ public class Answer implements Serializable {
 	public void setLead(Lead lead) {
 		id.setLead(lead);
 	}
+	
+	public Integer getWeight() {
+		return id.getOption().getWeight();
+	}
 
 	@Override
 	public int hashCode() {

@@ -35,6 +35,8 @@ public class LeadService {
 	}
 	
 	public LeadSalesDTO insert(Lead obj) {
+		
+		obj.setTotalScore();
 		return new LeadSalesDTO(repository.save(obj));
 	}
 	

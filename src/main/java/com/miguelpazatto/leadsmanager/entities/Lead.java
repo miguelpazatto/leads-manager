@@ -50,14 +50,13 @@ public class Lead implements Serializable {
 	@OneToMany(mappedBy = "id.lead", cascade = CascadeType.ALL, orphanRemoval = true)	 //provisório
 	private List<Answer> options = new ArrayList<>();
 
-	public Lead(Long id, String name, String email, String phone, Integer totalScore, LeadStatus leadStatus,
+	public Lead(Long id, String name, String email, String phone, LeadStatus leadStatus,
 			LeadClassification leadClassification, Salesman assignedTo) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
-		this.totalScore = totalScore;
 		this.leadStatus = leadStatus;
 		this.leadClassification = leadClassification;
 		this.assignedTo = assignedTo;
@@ -99,8 +98,8 @@ public class Lead implements Serializable {
 		return totalScore;
 	}
 
-	public void setTotalScore(Integer totalScore) {
-		this.totalScore = totalScore;
+	public void setTotalScore() {
+		this.totalScore = this.options.stream().mapToInt(Answer::getWeight).sum();
 	}
 
 	public LeadStatus getLeadStatus() {

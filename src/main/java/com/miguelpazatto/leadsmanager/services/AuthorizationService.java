@@ -47,8 +47,7 @@ public class AuthorizationService implements UserDetailsService {
 				throw new RuntimeException("Salesman data cannot be null");
 			}
 			
-			Salesman salesman = new Salesman(null, data.name(), data.email(), data.phone());
-			salesman.setUser(newUser);
+			Salesman salesman = new Salesman(null, data.name(), data.email(), data.phone(), newUser);
 			
 			salesmanRepository.save(salesman);
 			
