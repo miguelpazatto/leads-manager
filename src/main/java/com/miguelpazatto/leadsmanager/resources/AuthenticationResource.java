@@ -15,8 +15,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.miguelpazatto.leadsmanager.dto.AuthenticationDTO;
 import com.miguelpazatto.leadsmanager.dto.RegisterDTO;
+import com.miguelpazatto.leadsmanager.dto.TokenDTO;
 import com.miguelpazatto.leadsmanager.dto.UserResponseDTO;
 import com.miguelpazatto.leadsmanager.entities.User;
+import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
 
 import jakarta.validation.Valid;
@@ -34,11 +36,17 @@ public class AuthenticationResource {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private TokenService tokenService;
+	
 	@PostMapping("/login")
 	public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
 		var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
 		var auth = authenticationManager.authenticate(usernamePassword);
-		return ResponseEntity.ok().build(); //retornar token
+		
+		var token = tokenService.generateToken((User) auth.getPrincipal());
+		
+		return ResponseEntity.ok(new TokenDTO(token));
 	}
 	
 	@PostMapping("/register")

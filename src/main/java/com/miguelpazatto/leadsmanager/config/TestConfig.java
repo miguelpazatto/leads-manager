@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.miguelpazatto.leadsmanager.entities.Answer;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
+import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
@@ -20,11 +22,14 @@ import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
+import com.miguelpazatto.leadsmanager.repositories.UserRepository;
 
 @Configuration
 @Profile("test")
 public class TestConfig implements CommandLineRunner {
 
+	//implementar user config e refatorar salesman
+	
 	@Autowired
 	private LeadRepository leadRepository;
 	
@@ -40,7 +45,17 @@ public class TestConfig implements CommandLineRunner {
 	@Autowired
 	private AnswerRepository answerRepository;
 	
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+	
 	public void run(String... args) throws Exception {
+		
+		User u1 = new User("miguelpazatto", passwordEncoder.encode("12345"), UserRole.ADMIN);
+		
+		userRepository.save(u1);
 		
 		Question q1 = new Question(null, "Você se sente indisposto logo ao acordar?");
 		Question q2 = new Question(null, "Qual é o maior limitador da sua performance hoje?");
