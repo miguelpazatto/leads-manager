@@ -20,6 +20,7 @@ import com.miguelpazatto.leadsmanager.dto.UserResponseDTO;
 import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
+import com.miguelpazatto.leadsmanager.services.AuthorizationService;
 
 import jakarta.validation.Valid;
 
@@ -39,6 +40,9 @@ public class AuthenticationResource {
 	@Autowired
 	private TokenService tokenService;
 	
+	@Autowired
+	private AuthorizationService authorizationService;
+	
 	@PostMapping("/login")
 	public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
 		var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
@@ -53,10 +57,7 @@ public class AuthenticationResource {
 	public ResponseEntity register(@RequestBody @Valid RegisterDTO data, UriComponentsBuilder uriBuilder) {
 		if (repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 		
-		String encryptedPassword = passwordEncoder.encode(data.password());
-		User newUser = new User(data.login(), encryptedPassword, data.role());
-		
-		repository.save(newUser);
+		User newUser = authorizationService.register(data);
 		
 		URI uri = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
 		

@@ -31,10 +31,10 @@ public class Salesman implements Serializable {
 	private String email;
 	private String phone;
 	
-	/*
+	
 	@OneToOne
 	@JoinColumn(name = "user_id")
-	private User user;*/
+	private User user;
 	
 	@OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true) //provisório
 	private List<Lead> leads = new ArrayList<>();
@@ -84,6 +84,14 @@ public class Salesman implements Serializable {
 
 	public void setLeads(List<Lead> leads) {
 		this.leads = leads;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 	
