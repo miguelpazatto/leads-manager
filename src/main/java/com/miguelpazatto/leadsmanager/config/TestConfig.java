@@ -6,14 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.miguelpazatto.leadsmanager.dto.RegisterDTO;
 import com.miguelpazatto.leadsmanager.entities.Answer;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
-import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
@@ -22,7 +21,7 @@ import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
-import com.miguelpazatto.leadsmanager.repositories.UserRepository;
+import com.miguelpazatto.leadsmanager.services.AuthorizationService;
 
 @Configuration
 @Profile("test")
@@ -32,10 +31,10 @@ public class TestConfig implements CommandLineRunner {
 	private LeadRepository leadRepository;
 	
 	@Autowired
-	private SalesmanRepository salesmanRepository;
+	private QuestionRepository questionRepository;
 	
 	@Autowired
-	private QuestionRepository questionRepository;
+	private SalesmanRepository salesmanRepository;
 	
 	@Autowired
 	private OptionRepository optionRepository;
@@ -44,23 +43,15 @@ public class TestConfig implements CommandLineRunner {
 	private AnswerRepository answerRepository;
 	
 	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private AuthorizationService authService;
 	
 	
 	public void run(String... args) throws Exception {
 		
-		User u1 = new User("miguelpazatto", passwordEncoder.encode("12345"), UserRole.ADMIN);
-		User u2 = new User("rodrigo", passwordEncoder.encode("senha123"), UserRole.COLLABORATOR);
-	    User u3 = new User("vinicius", passwordEncoder.encode("senha1234"), UserRole.COLLABORATOR);
+		authService.register(new RegisterDTO("miguelpazatto", "12345", UserRole.ADMIN, null, null, null));
+		authService.register(new RegisterDTO("rodrigo", "123", UserRole.COLLABORATOR, "Rodrigo Santos", "rodrigo@email.com", "9999999999"));
 		
-		userRepository.saveAll(List.of(u1, u2, u3));
-		
-		Salesman s1 = new Salesman(null, "Rodrigo", "rodrigo@email.com", "998456728", u2);
-		Salesman s2 = new Salesman(null, "Vinicius", "vinicius@email.com", "997654382", u3);
-		
-		salesmanRepository.saveAll(List.of(s1, s2));
+		Salesman s1 = salesmanRepository.findByEmail("rodrigo@email.com").orElseThrow();
 		
 		Question q1 = new Question(null, "Você se sente indisposto logo ao acordar?");
 		Question q2 = new Question(null, "Qual é o maior limitador da sua performance hoje?");
@@ -77,7 +68,7 @@ public class TestConfig implements CommandLineRunner {
 		optionRepository.saveAll(List.of(o1, o2, o3, o4, o5, o6));
 		
 		Lead l1 = new Lead(null, "Miguel", "miguel@email.com", "994568812", LeadStatus.NEW, LeadClassification.HOT, s1);
-		Lead l2 = new Lead(null, "Igor", "igor@email.com", "993876431", LeadStatus.CONTACTED, LeadClassification.WARM, s2);
+		Lead l2 = new Lead(null, "Igor", "igor@email.com", "993876431", LeadStatus.CONTACTED, LeadClassification.WARM, s1);
 		
 		leadRepository.saveAll(List.of(l1, l2));
 		
