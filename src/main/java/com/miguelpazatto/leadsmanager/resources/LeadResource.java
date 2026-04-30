@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
+import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.services.LeadService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/leads")
@@ -46,8 +49,8 @@ public class LeadResource {
 	}
 	
 	@PostMapping
-	public ResponseEntity<LeadSalesDTO> insert(@RequestBody Lead obj) {
-		LeadSalesDTO dto = service.insert(obj);
+	public ResponseEntity<LeadSalesDTO> insert(@RequestBody @Valid LeadRequestDTO data) {
+		LeadSalesDTO dto = service.insert(data);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
 		return ResponseEntity.created(uri).body(dto);
 	}

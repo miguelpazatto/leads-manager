@@ -27,7 +27,17 @@ public enum LeadClassification {
 			"Seus indicadores mostram maturidade acima da média. O foco agora é blindagem de rotina e escala exponencial do ecossistema.",
 			"COLD",
 			"Lead de alto nível. Abordagem sênior. Focar em 'exclusividade', 'networking' e 'otimização fina'."
+			),
+	ERROR(
+			-1,
+			-1,
+			"",
+			"",
+			"",
+			""
 			);
+	
+	
 	
 	private final int min;
 	private final int max;

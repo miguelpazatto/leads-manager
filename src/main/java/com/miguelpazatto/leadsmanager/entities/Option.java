@@ -50,7 +50,5 @@ public class Option implements Serializable {
 		this.weight = weight;
 		this.question = question;
 	}
-	
-	
-	
+
 }

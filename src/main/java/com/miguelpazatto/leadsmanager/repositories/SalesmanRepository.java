@@ -10,4 +10,6 @@ public interface SalesmanRepository extends JpaRepository<Salesman, Long> {
 
 	public Optional<Salesman> findByEmail(String email);
 	
+	public Optional<Salesman> findFirstByOrderByLastLeadDateAsc();
+	
 }

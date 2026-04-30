@@ -31,16 +31,13 @@ public class TestConfig implements CommandLineRunner {
 	private LeadRepository leadRepository;
 	
 	@Autowired
-	private QuestionRepository questionRepository;
-	
-	@Autowired
 	private SalesmanRepository salesmanRepository;
 	
 	@Autowired
-	private OptionRepository optionRepository;
+	private QuestionRepository questionRepository;
 	
 	@Autowired
-	private AnswerRepository answerRepository;
+	private OptionRepository optionRepository;
 	
 	@Autowired
 	private AuthorizationService authService;
@@ -67,17 +64,20 @@ public class TestConfig implements CommandLineRunner {
 		
 		optionRepository.saveAll(List.of(o1, o2, o3, o4, o5, o6));
 		
-		Lead l1 = new Lead(null, "Miguel", "miguel@email.com", "994568812", LeadStatus.NEW, LeadClassification.HOT, s1);
-		Lead l2 = new Lead(null, "Igor", "igor@email.com", "993876431", LeadStatus.CONTACTED, LeadClassification.WARM, s1);
-		
-		leadRepository.saveAll(List.of(l1, l2));
+		Lead l1 = new Lead(null, "Miguel", "miguel@email.com", "994568812", s1);
+		Lead l2 = new Lead(null, "Igor", "igor@email.com", "993876431", s1);
 		
 		Answer a1 = new Answer(o6, l1);
 		Answer a2 = new Answer(o3, l1);
 		Answer a3 = new Answer(o4, l2);
 		Answer a4 = new Answer(o5, l2);
 		
-		answerRepository.saveAll(List.of(a1, a2, a3, a4));
+		l1.getOptions().addAll(List.of(a1, a2));
+		l2.getOptions().addAll(List.of(a3, a4));
+		
+		leadRepository.saveAll(List.of(l1, l2));
+		
+		
 		
 	}
 	

@@ -17,6 +17,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -38,7 +40,7 @@ public class Lead implements Serializable {
 	private Integer totalScore;
 	
 	@Enumerated(EnumType.STRING)
-	private LeadStatus leadStatus;
+	private LeadStatus leadStatus = LeadStatus.NEW;
 	
 	@Enumerated(EnumType.STRING)
 	private LeadClassification leadClassification;
@@ -50,15 +52,11 @@ public class Lead implements Serializable {
 	@OneToMany(mappedBy = "id.lead", cascade = CascadeType.ALL, orphanRemoval = true)	 //provisório
 	private List<Answer> options = new ArrayList<>();
 
-	public Lead(Long id, String name, String email, String phone, LeadStatus leadStatus,
-			LeadClassification leadClassification, Salesman assignedTo) {
-		super();
+	public Lead(Long id, String name, String email, String phone, Salesman assignedTo) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
-		this.leadStatus = leadStatus;
-		this.leadClassification = leadClassification;
 		this.assignedTo = assignedTo;
 	}
 
@@ -98,10 +96,6 @@ public class Lead implements Serializable {
 		return totalScore;
 	}
 
-	public void setTotalScore() {
-		this.totalScore = this.options.stream().mapToInt(Answer::getWeight).sum();
-	}
-
 	public LeadStatus getLeadStatus() {
 		return leadStatus;
 	}
@@ -112,10 +106,6 @@ public class Lead implements Serializable {
 
 	public LeadClassification getLeadClassification() {
 		return leadClassification;
-	}
-
-	public void setLeadClassification(LeadClassification leadClassification) {
-			this.leadClassification = leadClassification;
 	}
 
 	public Salesman getAssignedTo() {
@@ -132,6 +122,23 @@ public class Lead implements Serializable {
 
 	public void setOptions(List<Answer> options) {
 		this.options = options;
+		updateMetrics();
+	}
+	
+	@PrePersist
+	@PreUpdate
+	private void updateMetrics() {
+		if (options != null) {
+			totalScore = options.stream()
+					.mapToInt(answer -> answer.getWeight())
+					.sum();
+			
+			leadClassification = LeadClassification.scoreToClassification(totalScore);
+		} else {
+			totalScore = 0;
+			leadClassification = LeadClassification.ERROR;
+		}
+		
 	}
 
 }

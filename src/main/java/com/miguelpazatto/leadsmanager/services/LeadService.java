@@ -1,5 +1,6 @@
 package com.miguelpazatto.leadsmanager.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,17 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
+import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
+import com.miguelpazatto.leadsmanager.entities.Answer;
 import com.miguelpazatto.leadsmanager.entities.Lead;
+import com.miguelpazatto.leadsmanager.entities.Option;
+import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
-
-import jakarta.persistence.EntityNotFoundException;
+import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 
 @Service
 public class LeadService {
 
 	@Autowired
 	private LeadRepository repository;
+	
+	@Autowired
+	private SalesmanService salesmanService;
+	
+	@Autowired
+	private OptionRepository optionRepository;
 	
 	public List<LeadSalesDTO> findAll() {
 		List<Lead> leads = repository.findAll();
@@ -34,9 +44,19 @@ public class LeadService {
 		return obj.map(LeadPublicDTO::new).orElseThrow();
 	}
 	
-	public LeadSalesDTO insert(Lead obj) {
+	public LeadSalesDTO insert(LeadRequestDTO data) {
+		Salesman salesman = salesmanService.assignSalesman();
+		Lead obj = new Lead(null, data.name(), data.email(), data.phone(), salesman);
 		
-		obj.setTotalScore();
+		List<Answer> answers = new ArrayList<>();
+		
+		for (Long o : data.optionsId()) {
+			Option option = optionRepository.findById(o).orElseThrow();
+			answers.add(new Answer(option, obj));
+		}
+		
+		obj.setOptions(answers);
+		
 		return new LeadSalesDTO(repository.save(obj));
 	}
 	
@@ -57,8 +77,6 @@ public class LeadService {
 		entity.setName(obj.getName());
 		entity.setEmail(obj.getEmail());
 		entity.setPhone(obj.getPhone());
-		entity.setLeadStatus(obj.getLeadStatus());
-		entity.setLeadClassification(obj.getLeadClassification());
 		entity.setAssignedTo(obj.getAssignedTo());
 	}
 	

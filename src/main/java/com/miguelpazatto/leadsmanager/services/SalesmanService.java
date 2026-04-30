@@ -1,5 +1,6 @@
 package com.miguelpazatto.leadsmanager.services;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,16 @@ public class SalesmanService {
 		entity.setName(obj.getName());
 		entity.setEmail(obj.getEmail());
 		entity.setPhone(obj.getPhone());
+	}
+	
+	public Salesman assignSalesman() {
+		Salesman salesman = repository.findFirstByOrderByLastLeadDateAsc().orElseThrow();
+		
+		salesman.setLastLeadDate(Instant.now());
+		repository.save(salesman);
+		
+		return salesman;
+		
 	}
 	
 }

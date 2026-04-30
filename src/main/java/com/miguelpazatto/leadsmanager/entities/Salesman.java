@@ -1,6 +1,7 @@
 package com.miguelpazatto.leadsmanager.entities;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class Salesman implements Serializable {
 	private String name;
 	private String email;
 	private String phone;
+	
+	private Instant lastLeadDate = Instant.now();
 	
 	
 	@OneToOne
@@ -93,6 +96,14 @@ public class Salesman implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Instant getLastLeadDate() {
+		return lastLeadDate;
+	}
+
+	public void setLastLeadDate(Instant lastLeadDate) {
+		this.lastLeadDate = lastLeadDate;
 	}
 	
 	
