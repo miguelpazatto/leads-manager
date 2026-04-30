@@ -57,7 +57,6 @@ public class LeadService {
 		entity.setName(obj.getName());
 		entity.setEmail(obj.getEmail());
 		entity.setPhone(obj.getPhone());
-		entity.setTotalScore(obj.getTotalScore());
 		entity.setLeadStatus(obj.getLeadStatus());
 		entity.setLeadClassification(obj.getLeadClassification());
 		entity.setAssignedTo(obj.getAssignedTo());

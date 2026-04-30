@@ -22,7 +22,7 @@ public enum LeadClassification {
 	
 	COLD(
 			71,
-			100,
+			Integer.MAX_VALUE,
 			"Alta Performance",
 			"Seus indicadores mostram maturidade acima da média. O foco agora é blindagem de rotina e escala exponencial do ecossistema.",
 			"COLD",
@@ -68,6 +68,20 @@ public enum LeadClassification {
 
 	public String getMessageSales() {
 		return messageSales;
+	}
+	
+	public static LeadClassification scoreToClassification (Integer totalScore){
+		if (totalScore == null) {
+			throw new IllegalArgumentException("O score não pode ser nulo para obter a classificação");
+		}
+		
+		for (LeadClassification lc : LeadClassification.values()) {
+			if (totalScore >= lc.min && totalScore <= lc.max) {
+				return lc;
+			}
+		}
+		
+		throw new IllegalStateException("Classificação não identificada");
 	}
 
 }
