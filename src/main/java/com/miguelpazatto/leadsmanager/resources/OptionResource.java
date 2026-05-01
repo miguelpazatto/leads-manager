@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.miguelpazatto.leadsmanager.dto.OptionIdDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;
-import com.miguelpazatto.leadsmanager.entities.Option;
+import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
+import com.miguelpazatto.leadsmanager.dto.OptionUpdateDTO;
 import com.miguelpazatto.leadsmanager.services.OptionService;
 
 @RestController
@@ -28,20 +28,20 @@ public class OptionResource {
 	private OptionService service;
 	
 	@GetMapping
-	public ResponseEntity<List<OptionRequestDTO>> findAll() {
-		List<OptionRequestDTO> options = service.findAll();
+	public ResponseEntity<List<OptionResponseDTO>> findAll() {
+		List<OptionResponseDTO> options = service.findAll();
 		return ResponseEntity.ok().body(options);
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<OptionRequestDTO> findById(@PathVariable Long id) {
-		OptionRequestDTO dto = service.findById(id);
+	public ResponseEntity<OptionResponseDTO> findById(@PathVariable Long id) {
+		OptionResponseDTO dto = service.findById(id);
 		return ResponseEntity.ok().body(dto);
 	}
 	
 	@PostMapping
-	public ResponseEntity<OptionIdDTO> insert(@RequestBody Option obj) {
-		OptionIdDTO dto = service.insert(obj);
+	public ResponseEntity<OptionResponseDTO> insert(@RequestBody OptionRequestDTO obj) {
+		OptionResponseDTO dto = service.insert(obj);
 		URI	uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
 		return ResponseEntity.created(uri).body(dto);
 	}
@@ -53,8 +53,8 @@ public class OptionResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<OptionRequestDTO> update(@PathVariable Long id, @RequestBody Option obj) {
-		OptionRequestDTO dto = service.update(id, obj);
+	public ResponseEntity<OptionResponseDTO> update(@PathVariable Long id, @RequestBody OptionUpdateDTO obj) {
+		OptionResponseDTO dto = service.update(id, obj);
 		return ResponseEntity.ok().body(dto);
 	}
 	
