@@ -3,7 +3,6 @@ package com.miguelpazatto.leadsmanager.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.miguelpazatto.leadsmanager.entities.pk.AnswerPK;
 
 import jakarta.persistence.EmbeddedId;
@@ -17,6 +16,9 @@ public class Answer implements Serializable {
 	
 	@EmbeddedId
 	private AnswerPK id = new AnswerPK();
+	
+	private Integer recordedWeight;
+	private String recordedString;
 
 	public Answer() {
 	}
@@ -24,6 +26,8 @@ public class Answer implements Serializable {
 	public Answer(Option option, Lead lead) {
 		id.setOption(option);
 		id.setLead(lead);
+		this.recordedWeight = option.getWeight();
+		this.recordedString = option.getDescription();
 	}
 
 	public Option getOption() {
@@ -41,9 +45,13 @@ public class Answer implements Serializable {
 	public void setLead(Lead lead) {
 		id.setLead(lead);
 	}
-	
-	public Integer getWeight() {
-		return id.getOption().getWeight();
+
+	public Integer getRecordedWeight() {
+		return recordedWeight;
+	}
+
+	public String getRecordedString() {
+		return recordedString;
 	}
 
 	@Override

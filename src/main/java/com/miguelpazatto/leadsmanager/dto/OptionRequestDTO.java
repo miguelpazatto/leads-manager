@@ -2,14 +2,13 @@ package com.miguelpazatto.leadsmanager.dto;
 
 import com.miguelpazatto.leadsmanager.entities.Option;
 
-public record OptionIdDTO(Long id, String description, Integer weight) {
+public record OptionRequestDTO(String description, Integer weight) {
 
-	public OptionIdDTO(Option option) {
+	public OptionRequestDTO(Option option) {
 		this (
-				option.getId(),
 				option.getDescription(),
 				option.getWeight()
-			);
+				);
 	}
 	
 }

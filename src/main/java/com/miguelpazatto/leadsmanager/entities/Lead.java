@@ -130,7 +130,7 @@ public class Lead implements Serializable {
 	private void updateMetrics() {
 		if (options != null) {
 			totalScore = options.stream()
-					.mapToInt(answer -> answer.getWeight())
+					.mapToInt(answer -> answer.getRecordedWeight())
 					.sum();
 			
 			leadClassification = LeadClassification.scoreToClassification(totalScore);
