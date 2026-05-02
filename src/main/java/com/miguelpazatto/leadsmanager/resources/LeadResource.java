@@ -20,7 +20,9 @@ import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.services.LeadService;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -69,8 +71,8 @@ public class LeadResource {
 	
 	@PutMapping(value = "/{id}/contacted")
 	public ResponseEntity<Void> markAsContacted(@PathVariable Long id) {
-		service.markAsContacted(id);
-		return ResponseEntity.noContent().build();
+			service.markAsContacted(id);
+			return ResponseEntity.noContent().build();	
 	}
 	
 }

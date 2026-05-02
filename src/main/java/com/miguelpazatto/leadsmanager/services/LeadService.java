@@ -20,6 +20,7 @@ import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -77,11 +78,17 @@ public class LeadService {
 	}
 	
 	public LeadSalesDTO update(Long id, Lead obj) {
-		//configurar exception
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException(id);
+		}
+		try {
 			Lead entity = repository.getReferenceById(id);
 			updateData(entity, obj);
-			return new LeadSalesDTO(repository.save(entity));
-		
+			return new LeadSalesDTO(repository.save(entity));	
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
+
 	}
 	
 	private void updateData(Lead entity, Lead obj) {
@@ -93,8 +100,13 @@ public class LeadService {
 	
 	@Transactional
 	public void markAsContacted(Long id) {
-		Lead obj = repository.getReferenceById(id);
-		obj.markAsContacted();	
+		try {
+			Lead obj = repository.getReferenceById(id);
+			obj.markAsContacted();	
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
+
 	}
 	
 }

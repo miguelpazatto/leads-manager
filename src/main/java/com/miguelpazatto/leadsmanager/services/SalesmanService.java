@@ -14,6 +14,7 @@ import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -48,10 +49,16 @@ public class SalesmanService {
 	}
 	
 	public SalesmanDTO update(Long id, Salesman obj) {
-		//config exception
-		Salesman entity = repository.getReferenceById(id);
-		updateData(entity, obj);
-		return new SalesmanDTO (repository.save(entity));
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException(id);
+		}
+		try {
+			Salesman entity = repository.getReferenceById(id);
+			updateData(entity, obj);
+			return new SalesmanDTO (repository.save(entity));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 	
 	private void updateData(Salesman entity, Salesman obj) {

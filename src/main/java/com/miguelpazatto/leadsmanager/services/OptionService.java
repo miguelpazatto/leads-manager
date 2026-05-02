@@ -17,6 +17,8 @@ import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class OptionService {
 
@@ -60,9 +62,17 @@ public class OptionService {
 	}
 	
 	public OptionResponseDTO update(Long id, OptionUpdateDTO obj) {
-		Option entity = repository.getReferenceById(id);
-		updateData(entity, obj);
-		return new OptionResponseDTO(repository.save(entity));
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException(id);
+		}
+		try {
+			Option entity = repository.getReferenceById(id);
+			updateData(entity, obj);
+			return new OptionResponseDTO(repository.save(entity));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
+
 	}
 	
 	private void updateData(Option entity, OptionUpdateDTO obj) {

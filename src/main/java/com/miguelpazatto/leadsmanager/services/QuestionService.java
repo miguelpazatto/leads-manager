@@ -13,6 +13,8 @@ import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class QuestionService {
 
@@ -45,10 +47,16 @@ public class QuestionService {
 	}
 	
 	public QuestionDTO update(Long id, Question obj) {
-		//config exception
-		Question entity = repository.getReferenceById(id);
-		updateData(entity, obj);
-		return new QuestionDTO(repository.save(entity));
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException(id);
+		}
+		try {
+			Question entity = repository.getReferenceById(id);
+			updateData(entity, obj);
+			return new QuestionDTO(repository.save(entity));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 	
 	private void updateData(Question entity, Question obj) {
