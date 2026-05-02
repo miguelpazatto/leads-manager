@@ -80,4 +80,9 @@ public class LeadService {
 		entity.setAssignedTo(obj.getAssignedTo());
 	}
 	
+	public void markAsContacted(Long id) {
+		Lead obj = repository.getReferenceById(id);
+		obj.markAsContacted();	
+	}
+	
 }

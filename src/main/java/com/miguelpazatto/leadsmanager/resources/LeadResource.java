@@ -67,4 +67,10 @@ public class LeadResource {
 		return ResponseEntity.ok().body(dto);
 	}
 	
+	@PutMapping(value = "/{id}/contacted")
+	public ResponseEntity<Void> markAsContacted(@PathVariable Long id) {
+		service.markAsContacted(id);
+		return ResponseEntity.noContent().build();
+	}
+	
 }

@@ -140,5 +140,13 @@ public class Lead implements Serializable {
 		}
 		
 	}
+	
+	public void markAsContacted() {
+		if (this.leadStatus != LeadStatus.NEW) {
+			throw new RuntimeException("Apenas leads novos podem ser contatados");
+		} else {
+			this.leadStatus = LeadStatus.CONTACTED;
+		}
+	}
 
 }
