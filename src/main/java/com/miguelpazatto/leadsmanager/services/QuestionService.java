@@ -2,7 +2,6 @@ package com.miguelpazatto.leadsmanager.services;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class QuestionService {
@@ -24,7 +24,7 @@ public class QuestionService {
 	
 	public QuestionDTO findById(Long id) {
 		Optional<Question> obj = repository.findById(id);
-		return obj.map(QuestionDTO::new).orElseThrow();
+		return obj.map(QuestionDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
 	public QuestionDTO insert(Question obj) {

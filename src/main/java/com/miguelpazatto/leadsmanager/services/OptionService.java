@@ -13,6 +13,7 @@ import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class OptionService {
@@ -29,7 +30,7 @@ public class OptionService {
 	
 	public OptionResponseDTO findById(Long id) {
 		Optional<Option> option = repository.findById(id);
-		return option.map(OptionResponseDTO::new).orElseThrow();
+		return option.map(OptionResponseDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
 	public OptionResponseDTO insert(OptionRequestDTO dto) {

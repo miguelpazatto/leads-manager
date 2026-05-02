@@ -16,6 +16,9 @@ import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class LeadService {
@@ -36,7 +39,7 @@ public class LeadService {
 	
 	public LeadSalesDTO findById(Long id) {
 		Optional<Lead> obj = repository.findById(id);
-		return obj.map(LeadSalesDTO::new).orElseThrow();
+		return obj.map(LeadSalesDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
 	public LeadPublicDTO publicFindById(Long id) {
@@ -80,6 +83,7 @@ public class LeadService {
 		entity.setAssignedTo(obj.getAssignedTo());
 	}
 	
+	@Transactional
 	public void markAsContacted(Long id) {
 		Lead obj = repository.getReferenceById(id);
 		obj.markAsContacted();	

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class SalesmanService {
@@ -24,7 +27,7 @@ public class SalesmanService {
 	
 	public SalesmanDTO findById(Long id) {
 		Optional<Salesman> obj = repository.findById(id);
-		return obj.map(SalesmanDTO::new).orElseThrow();
+		return obj.map(SalesmanDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
 	public SalesmanDTO insert(Salesman obj) {
@@ -49,14 +52,12 @@ public class SalesmanService {
 		entity.setPhone(obj.getPhone());
 	}
 	
+	@Transactional
 	public Salesman assignSalesman() {
 		Salesman salesman = repository.findFirstByOrderByLastLeadDateAsc().orElseThrow();
-		
 		salesman.setLastLeadDate(Instant.now());
-		repository.save(salesman);
 		
 		return salesman;
-		
 	}
 	
 }
