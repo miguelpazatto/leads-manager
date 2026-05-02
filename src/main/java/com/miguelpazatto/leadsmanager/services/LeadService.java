@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
@@ -16,6 +17,7 @@ import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
 import jakarta.transaction.Transactional;
@@ -44,7 +46,7 @@ public class LeadService {
 	
 	public LeadPublicDTO publicFindById(Long id) {
 		Optional<Lead> obj = repository.findById(id);
-		return obj.map(LeadPublicDTO::new).orElseThrow();
+		return obj.map(LeadPublicDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
 	public LeadSalesDTO insert(LeadRequestDTO data) {
@@ -64,8 +66,14 @@ public class LeadService {
 	}
 	
 	public void delete(Long id) {
-		//configurar exception
-		repository.deleteById(id);
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException(id);
+		}
+		try {
+			repository.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DatabaseException(e.getMessage());
+		}
 	}
 	
 	public LeadSalesDTO update(Long id, Lead obj) {

@@ -46,6 +46,7 @@ public class SecurityConfigurations {
 						.requestMatchers(HttpMethod.PUT, "/options/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/options").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/leads").permitAll()
+						.requestMatchers(HttpMethod.GET, "/leads/public/**").permitAll()
 						.anyRequest().authenticated()
 				)
 				.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
