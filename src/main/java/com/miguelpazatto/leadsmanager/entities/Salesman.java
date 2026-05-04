@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,7 +38,7 @@ public class Salesman implements Serializable {
 	@JoinColumn(name = "user_id")
 	private User user;
 	
-	@OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true) //provisório
+	@OneToMany(mappedBy = "assignedTo")
 	private List<Lead> leads = new ArrayList<>();
 	
 	public Salesman(Long id, String name, String email, String phone, User user) {

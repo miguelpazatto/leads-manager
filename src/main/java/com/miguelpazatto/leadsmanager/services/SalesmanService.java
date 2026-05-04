@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
@@ -69,7 +70,7 @@ public class SalesmanService {
 	
 	@Transactional
 	public Salesman assignSalesman() {
-		Salesman salesman = repository.findFirstByOrderByLastLeadDateAsc().orElseThrow();
+		Salesman salesman = repository.findFirstByOrderByLastLeadDateAsc().orElseThrow(() -> new BusinessException("Nenhum vendedor disponível"));
 		salesman.setLastLeadDate(Instant.now());
 		
 		return salesman;

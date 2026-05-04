@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
+import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -49,7 +50,7 @@ public class Lead implements Serializable {
 	@JoinColumn(name = "salesman_id")
 	private Salesman assignedTo;
 
-	@OneToMany(mappedBy = "id.lead", cascade = CascadeType.ALL, orphanRemoval = true)	 //provisório
+	@OneToMany(mappedBy = "id.lead", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Answer> options = new ArrayList<>();
 
 	public Lead(Long id, String name, String email, String phone, Salesman assignedTo) {
@@ -143,7 +144,7 @@ public class Lead implements Serializable {
 	
 	public void markAsContacted() {
 		if (this.leadStatus != LeadStatus.NEW) {
-			throw new RuntimeException("Apenas leads novos podem ser contatados");
+			throw new BusinessException("Apenas leads novos podem ser marcados como contatados");
 		} else {
 			this.leadStatus = LeadStatus.CONTACTED;
 		}

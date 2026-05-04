@@ -20,9 +20,7 @@ import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.services.LeadService;
-import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController

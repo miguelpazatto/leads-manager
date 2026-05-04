@@ -57,7 +57,7 @@ public class LeadService {
 		List<Answer> answers = new ArrayList<>();
 		
 		for (Long o : data.optionsId()) {
-			Option option = optionRepository.findById(o).orElseThrow();
+			Option option = optionRepository.findById(o).orElseThrow(() -> new ResourceNotFoundException(o));
 			answers.add(new Answer(option, obj));
 		}
 		
