@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
+import com.miguelpazatto.leadsmanager.dto.LeadUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.Answer;
 import com.miguelpazatto.leadsmanager.entities.Lead;
 import com.miguelpazatto.leadsmanager.entities.Option;
@@ -77,13 +78,13 @@ public class LeadService {
 		}
 	}
 	
-	public LeadSalesDTO update(Long id, Lead obj) {
+	public LeadSalesDTO update(Long id, LeadUpdateDTO data) {
 		if (!repository.existsById(id)) {
 			throw new ResourceNotFoundException(id);
 		}
 		try {
 			Lead entity = repository.getReferenceById(id);
-			updateData(entity, obj);
+			updateData(entity, data);
 			return new LeadSalesDTO(repository.save(entity));	
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(id);
@@ -91,11 +92,10 @@ public class LeadService {
 
 	}
 	
-	private void updateData(Lead entity, Lead obj) {
-		entity.setName(obj.getName());
-		entity.setEmail(obj.getEmail());
-		entity.setPhone(obj.getPhone());
-		entity.setAssignedTo(obj.getAssignedTo());
+	private void updateData(Lead entity, LeadUpdateDTO obj) {
+		entity.setName(obj.name());
+		entity.setEmail(obj.email());
+		entity.setPhone(obj.phone());
 	}
 	
 	@Transactional

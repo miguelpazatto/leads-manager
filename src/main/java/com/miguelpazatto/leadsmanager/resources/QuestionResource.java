@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
-import com.miguelpazatto.leadsmanager.entities.Question;
+import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
 import com.miguelpazatto.leadsmanager.services.QuestionService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/questions")
@@ -39,8 +41,8 @@ public class QuestionResource {
 	}
 	
 	@PostMapping
-	public ResponseEntity<QuestionDTO> insert(@RequestBody Question obj) {
-		QuestionDTO dto = service.insert(obj);
+	public ResponseEntity<QuestionDTO> insert(@RequestBody @Valid QuestionRequestDTO data) {
+		QuestionDTO dto = service.insert(data);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
 		return ResponseEntity.created(uri).body(dto);
 	}
@@ -52,8 +54,8 @@ public class QuestionResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<QuestionDTO> update(@PathVariable Long id, @RequestBody Question obj) {
-		QuestionDTO dto = service.update(id, obj);
+	public ResponseEntity<QuestionDTO> update(@PathVariable Long id, @RequestBody QuestionRequestDTO data) {
+		QuestionDTO dto = service.update(id, data);
 		return ResponseEntity.ok().body(dto);
 	}
 	

@@ -18,7 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
-import com.miguelpazatto.leadsmanager.entities.Lead;
+import com.miguelpazatto.leadsmanager.dto.LeadUpdateDTO;
 import com.miguelpazatto.leadsmanager.services.LeadService;
 
 import jakarta.validation.Valid;
@@ -62,8 +62,8 @@ public class LeadResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<LeadSalesDTO> update(@PathVariable Long id, @RequestBody Lead obj) {
-		LeadSalesDTO dto = service.update(id, obj);
+	public ResponseEntity<LeadSalesDTO> update(@PathVariable Long id, @RequestBody @Valid LeadUpdateDTO data) {
+		LeadSalesDTO dto = service.update(id, data);
 		return ResponseEntity.ok().body(dto);
 	}
 	

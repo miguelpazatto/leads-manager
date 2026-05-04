@@ -20,6 +20,8 @@ import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionUpdateDTO;
 import com.miguelpazatto.leadsmanager.services.OptionService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/options")
 public class OptionResource {
@@ -40,7 +42,7 @@ public class OptionResource {
 	}
 	
 	@PostMapping
-	public ResponseEntity<OptionResponseDTO> insert(@RequestBody OptionRequestDTO obj) {
+	public ResponseEntity<OptionResponseDTO> insert(@RequestBody @Valid OptionRequestDTO obj) {
 		OptionResponseDTO dto = service.insert(obj);
 		URI	uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
 		return ResponseEntity.created(uri).body(dto);
@@ -53,7 +55,7 @@ public class OptionResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<OptionResponseDTO> update(@PathVariable Long id, @RequestBody OptionUpdateDTO obj) {
+	public ResponseEntity<OptionResponseDTO> update(@PathVariable Long id, @RequestBody @Valid OptionUpdateDTO obj) {
 		OptionResponseDTO dto = service.update(id, obj);
 		return ResponseEntity.ok().body(dto);
 	}

@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
+import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
@@ -31,7 +32,8 @@ public class QuestionService {
 		return obj.map(QuestionDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
-	public QuestionDTO insert(Question obj) {
+	public QuestionDTO insert(QuestionRequestDTO data) {
+		Question obj = new Question(null, data.statement());
 		return new QuestionDTO(repository.save(obj));
 	}
 	
@@ -46,20 +48,20 @@ public class QuestionService {
 		}
 	}
 	
-	public QuestionDTO update(Long id, Question obj) {
+	public QuestionDTO update(Long id, QuestionRequestDTO data) {
 		if (!repository.existsById(id)) {
 			throw new ResourceNotFoundException(id);
 		}
 		try {
 			Question entity = repository.getReferenceById(id);
-			updateData(entity, obj);
+			updateData(entity, data);
 			return new QuestionDTO(repository.save(entity));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(id);
 		}
 	}
 	
-	private void updateData(Question entity, Question obj) {
-		entity.setStatement(obj.getStatement());
+	private void updateData(Question entity, QuestionRequestDTO data) {
+		entity.setStatement(data.statement());
 	}
 }

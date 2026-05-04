@@ -13,8 +13,10 @@ import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @Service
 public class AuthorizationService implements UserDetailsService {
@@ -34,7 +36,7 @@ public class AuthorizationService implements UserDetailsService {
 	}
 
 	@Transactional
-	public User register(RegisterDTO data) {
+	public User register(@Valid RegisterDTO data) {
 		
 		String encryptedPassword = passwordEncoder.encode(data.password());
 		User newUser = new User(data.login(), encryptedPassword, data.role());
@@ -44,7 +46,7 @@ public class AuthorizationService implements UserDetailsService {
 		if (data.role() == UserRole.COLLABORATOR) {
 			
 			if (data.name() == null || data.email() == null || data.phone() == null) {
-				throw new RuntimeException("Salesman data cannot be null");
+				throw new BusinessException("Dados de vendedor (nome, email, telefone) são obrigatórios para colaboradores.");
 			}
 			
 			Salesman salesman = new Salesman(null, data.name(), data.email(), data.phone(), newUser);

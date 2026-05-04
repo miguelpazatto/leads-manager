@@ -3,10 +3,23 @@ package com.miguelpazatto.leadsmanager.resources.exceptions;
 import java.io.Serializable;
 import java.time.Instant;
 
-public record StandardError(
-		Instant timestamp,
-		Integer status,
-		String error, 
-		String message, 
-		String path
-		) implements Serializable {}
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class StandardError implements Serializable {
+		private static final long serialVersionUID = 1L;
+		
+		private Instant timestamp;
+		private Integer status;
+		private String error; 
+		private String message; 
+		private String path;
+
+}
+		

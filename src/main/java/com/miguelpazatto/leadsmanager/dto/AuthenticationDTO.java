@@ -1,5 +1,9 @@
 package com.miguelpazatto.leadsmanager.dto;
 
-public record AuthenticationDTO(String login, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthenticationDTO(
+		@NotBlank(message = "Usuário ou senha inválidos") String login,
+		@NotBlank(message = "Usuário ou senha inválidos") String password) {
 
 }

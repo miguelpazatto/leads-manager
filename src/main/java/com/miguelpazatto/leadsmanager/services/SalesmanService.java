@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
+import com.miguelpazatto.leadsmanager.dto.SalesmanUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
@@ -34,10 +35,6 @@ public class SalesmanService {
 		return obj.map(SalesmanDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
-	public SalesmanDTO insert(Salesman obj) {
-		return new SalesmanDTO(repository.save(obj));
-	}
-	
 	public void delete(Long id) {
 		if (!repository.existsById(id)) {
 			throw new ResourceNotFoundException(id);
@@ -49,23 +46,23 @@ public class SalesmanService {
 		}
 	}
 	
-	public SalesmanDTO update(Long id, Salesman obj) {
+	public SalesmanDTO update(Long id, SalesmanUpdateDTO data) {
 		if (!repository.existsById(id)) {
 			throw new ResourceNotFoundException(id);
 		}
 		try {
 			Salesman entity = repository.getReferenceById(id);
-			updateData(entity, obj);
+			updateData(entity, data);
 			return new SalesmanDTO (repository.save(entity));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(id);
 		}
 	}
 	
-	private void updateData(Salesman entity, Salesman obj) {
-		entity.setName(obj.getName());
-		entity.setEmail(obj.getEmail());
-		entity.setPhone(obj.getPhone());
+	private void updateData(Salesman entity, SalesmanUpdateDTO data) {
+		entity.setName(data.name());
+		entity.setEmail(data.email());
+		entity.setPhone(data.phone());
 	}
 	
 	@Transactional
