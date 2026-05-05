@@ -4,6 +4,8 @@ import org.flywaydb.core.Flyway;
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.Statement;
 
 @Configuration
 public class FlywayConfig {
@@ -17,10 +19,18 @@ public class FlywayConfig {
     @PostConstruct
     public void runFlywayManually() {
         System.out.println("=================================================");
-        System.out.println(" ASSUMINDO O CONTROLE: INICIANDO FLYWAY MANUALMENTE ");
+        System.out.println(" INICIANDO OPERAÇÃO DE FAXINA E MIGRAÇÃO ");
         System.out.println("=================================================");
 
         try {
+            System.out.println(" -> Limpando o banco de dados antigo...");
+            try (Connection conn = dataSource.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+                System.out.println(" -> Banco de dados resetado com sucesso!");
+            }
+
+            System.out.println(" -> Iniciando o Flyway...");
             Flyway flyway = Flyway.configure()
                     .dataSource(dataSource)
                     .locations("classpath:db/migration")
@@ -30,12 +40,12 @@ public class FlywayConfig {
             flyway.migrate();
             
             System.out.println("=================================================");
-            System.out.println(" FLYWAY FINALIZADO COM SUCESSO! TABELAS CRIADAS! ");
+            System.out.println(" SUCESSO ABSOLUTO! TABELAS CRIADAS E DADOS INSERIDOS! ");
             System.out.println("=================================================");
             
         } catch (Exception e) {
             System.out.println("=================================================");
-            System.out.println(" ERRO FATAL NO FLYWAY: O MISTÉRIO REVELADO ");
+            System.out.println(" ERRO NA FAXINA OU NO FLYWAY ");
             System.out.println(" Motivo: " + e.getMessage());
             e.printStackTrace();
             System.out.println("=================================================");
