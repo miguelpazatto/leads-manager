@@ -3,7 +3,6 @@ package com.miguelpazatto.leadsmanager.dto;
 import java.util.List;
 
 import com.miguelpazatto.leadsmanager.entities.Salesman;
-import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 
 public record SalesmanDTO(Long id, String name, String email, String phone, List<LeadDTO> leads) {
 
