@@ -16,7 +16,7 @@ O grande diferencial da API é o seu motor de qualificação dinâmico:
 ## 🏗️ Modelagem do Domínio (Core Business)
 Abaixo está o diagrama de classes focando estritamente na regra de negócio e no motor de pontuação.
 
-![Diagrama de Classes do Domínio](uml-diagram.jpg)
+![Diagrama de Classes do Domínio](doc/uml-diagram.jpg)
 
 ## 🛠️ Tecnologias Utilizadas
 * **Linguagem:** Java 21
@@ -37,11 +37,11 @@ Abaixo está o diagrama de classes focando estritamente na regra de negócio e n
 
 ### Autenticação (Gerar Token)
 `POST /auth/login`
-```json
+json
 {
   "login": "visitant",
   "password": "demo123"
-}```
+}
 
 ### 📦 Cadastro de um Novo Lead (Público)
 
@@ -54,13 +54,13 @@ Abaixo está o diagrama de classes focando estritamente na regra de negócio e n
 * **optionId**: A lista de IDs das opções não pode ser vazia.
 
 **Exemplo de JSON (Request Body):**
-```json
+json
 {
   "name": "Startup Inovadora Ltda",
   "email": "contato@startup.com",
   "phone": "16999999999",
   "optionId": [1, 4, 7] 
-}```
+}
 
 ### 📍 Mapeamento de Rotas
 
