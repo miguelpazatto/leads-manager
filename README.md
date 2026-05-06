@@ -16,7 +16,7 @@ O grande diferencial da API é o seu motor de qualificação dinâmico:
 ## 🏗️ Modelagem do Domínio (Core Business)
 Abaixo está o diagrama de classes focando estritamente na regra de negócio e no motor de pontuação.
 
-![Diagrama de Classes do Domínio](uml-diagram.png)
+![Diagrama de Classes do Domínio](uml-diagram.jpg)
 
 ## 🛠️ Tecnologias Utilizadas
 * **Linguagem:** Java 21
@@ -72,6 +72,6 @@ Abaixo está o diagrama de classes focando estritamente na regra de negócio e n
 * **GET /leads/{id}**: Detalha o histórico e as respostas de um lead específico.
 * **PATCH /leads/{id}/contacted**: Altera o status de um lead de `NEW` para `CONTACTED`.
 
-### 🔜 Próximos Passos
+## 🔜 Próximos Passos
 - [ ] Implementação de Testes Unitários e de Integração (JUnit 5 e Mockito).
 - [ ] Documentação automatizada com Swagger / OpenAPI.
