@@ -1,67 +1,77 @@
-# Lead Manager System 🚀
+# Leads Manager API 🚀
 
-> **Transformando o "caos" dos leads em uma estratégia de vendas incisiva.**
+Uma API RESTful desenvolvida para otimizar e escalar a produtividade de times de vendas. Criada com o propósito de atender startups, o sistema transforma simples formulários web em canais de comunicação inteligentes, qualificando potenciais clientes de forma totalmente automatizada.
 
-## 💼 A Dor do Negócio (O Problema)
-Muitos empreendedores e equipes comerciais enfrentam o mesmo desafio: recebem um volume alto de contatos (leads) por diversos canais, mas perdem tempo precioso tentando organizar tudo em planilhas ou, pior, abordando as pessoas sem critério. 
+## 🎯 O Problema que Resolve
+Times de vendas perdem muito tempo analisando contatos frios. O Leads Manager recebe os dados do formulário do site e aplica uma inteligência de pontuação instantânea, entregando para o vendedor uma lista priorizada e dicas de abordagem personalizadas.
 
-A pergunta é sempre a mesma: **"Para quem eu devo ligar primeiro?"**. Sem uma triagem inteligente, leads com alto potencial de compra ("quentes") esfriam enquanto o vendedor perde tempo com curiosos.
+## 🧠 Regra de Negócio: Motor de Classificação (Scoring)
+O grande diferencial da API é o seu motor de qualificação dinâmico:
+1. **Pesos e Respostas (`Answers`):** Cada opção de um formulário tem um peso (`weight`). Quando um lead é submetido, o sistema gera uma lista de `Answers` (entidade associativa) que registra e "congela" o peso daquela opção no momento exato da criação.
+2. **Cálculo (`totalScore`):** Um método interno utiliza Lambdas/Streams para somar todos os pesos e calcular o Score Total do Lead.
+3. **Classificação Enum-Driven:** O `totalScore` é repassado para o Enum `LeadClassification`. É o Enum que detém a responsabilidade de avaliar a margem de pontos e retornar a classificação correta.
+4. **Lógica de Temperatura:** Baseado na dor do cliente, **quanto menor a pontuação** (indicando baixa performance do lead ao conciliar CPF e CNPJ), **mais "Quente" (HOT) é o lead**.
+5. **Mensageria:** O próprio Enum encapsula mensagens customizadas: uma é enviada ao front-end para o usuário, e outra é exibida ao vendedor com uma sugestão de abordagem.
 
-## 🎯 A Solução
-O **Lead Manager** automatiza essa triagem. Através de um sistema de pontuação dinâmica baseada em formulários, o backend calcula o score de cada lead no momento do cadastro. 
+## 🏗️ Modelagem do Domínio (Core Business)
+Abaixo está o diagrama de classes focando estritamente na regra de negócio e no motor de pontuação.
 
-O sistema não entrega apenas dados; ele entrega **prioridade**. O vendedor recebe uma classificação clara (HOT, WARM, COLD) e um roteiro de abordagem sugerido, permitindo uma comunicação muito mais agressiva e eficiente.
-
----
-
-## 🏗️ Arquitetura e Decisões Técnicas
-
-O projeto utiliza **Modelagem de Domínio Rico** e separa a lógica de inteligência de negócio da simples persistência de dados.
-
-### 🛡️ Smart Enums & Integridade
-Diferente de sistemas básicos, utilizamos **Enums Turbinados** para `LeadStatus` e `LeadClassification`.
-- **Mapeamento por Código:** Garantimos que o banco de dados seja imutável e seguro contra renomeações no código Java.
-- **Metadados de Contexto:** Cada classificação carrega seu próprio "bundle" de informações: rótulos para o front-end e descrições estratégicas específicas para o vendedor e para o cliente.
-
-### 🧠 Cálculo no Service
-A inteligência de pontuação reside exclusivamente na camada de **Service**. Ao persistir o `totalScore` no banco, permitimos que o vendedor ordene sua lista de contatos instantaneamente, focando no que realmente traz retorno financeiro.
-
-### 📊 Diagrama UML
-![Diagrama UML do Projeto](doc/uml-diagram.jpg)
-*(O mapa que guia a construção das entidades, relacionamentos e a classe associativa de respostas)*
-
----
+![Diagrama de Classes do Domínio](uml-diagram.png)
 
 ## 🛠️ Tecnologias Utilizadas
+* **Linguagem:** Java 21
+* **Framework:** Spring Boot 3
+* **Banco de Dados:** PostgreSQL
+* **Migrações:** Flyway
+* **Segurança:** Spring Security + JWT
+* **Deploy/Nuvem:** Railway
 
-* **Linguagem:** Java 25 
-* **Framework:** Spring Boot 3.4+
-* **Persistência:** Spring Data JPA / Hibernate
-* **Banco de Dados:** * 
-	**H2 Database:** Desenvolvimento e testes rápidos.
-    * **PostgreSQL:** Produção e persistência robusta.
-* **Ferramentas:** Lombok, Bean Validation, Maven.
+## 🌐 Demonstração ao Vivo (Live API)
+**URL Base:** `https://leads-manager-production.up.railway.app`
 
----
+**Credenciais de Visitante (Acesso de Leitura):**
+* **Login:** `visitant`
+* **Senha:** `demo123`
 
-## ⚙️ Como Rodar o Projeto
+## 📦 Exemplos de Requisição (Payloads)
 
-### 1. Pré-requisitos
-* JDK 25 instalado.
-* Maven configurado no Path.
+### Autenticação (Gerar Token)
+`POST /auth/login`
+```json
+{
+  "login": "visitant",
+  "password": "demo123"
+}
 
-### 2. Variáveis de Ambiente
-Para proteger o acesso ao banco de dados em produção, configure:
-- `DB_PASSWORD`: Senha do seu banco PostgreSQL.
+### 📦 Cadastro de um Novo Lead (Público)
 
-### 3. Execução (Padrão H2)
-1. Clone o repositório.
-2. Execute `./mvnw spring-boot:run` ou rode a classe principal via sua IDE preferida.
-3. O sistema povoará automaticamente as perguntas e opções iniciais via `CommandLineRunner`.
-4. Acesse o console do H2 em: `http://localhost:8080/h2-console`
+`POST /leads`
 
----
+**Regras de Validação (DTO):**
+* **name**: Preenchimento obrigatório.
+* **email**: Formato de e-mail válido.
+* **phone**: Apenas números, mínimo de 11 caracteres.
+* **optionId**: A lista de IDs das opções não pode ser vazia.
 
-## 👨‍💻 Autor
+**Exemplo de JSON (Request Body):**
+```json
+{
+  "name": "Startup Inovadora Ltda",
+  "email": "contato@startup.com",
+  "phone": "16999999999",
+  "optionId": [1, 4, 7] 
+}
 
-**Miguel Pazatto** *Estudante de Engenharia de Software* [www.linkedin.com/in/miguel-pazatto]
+### 📍 Mapeamento de Rotas
+
+#### Públicas (PermitAll)
+* **GET /leads/public/{id}**: Retorna a mensagem de feedback amigável do sistema para o usuário final.
+
+#### Autenticadas (Requerem Token JWT)
+* **GET /leads**: Lista todos os leads captados com classificações e scores.
+* **GET /leads/{id}**: Detalha o histórico e as respostas de um lead específico.
+* **PATCH /leads/{id}/contacted**: Altera o status de um lead de `NEW` para `CONTACTED`.
+
+### 🔜 Próximos Passos
+- [ ] Implementação de Testes Unitários e de Integração (JUnit 5 e Mockito).
+- [ ] Documentação automatizada com Swagger / OpenAPI.
