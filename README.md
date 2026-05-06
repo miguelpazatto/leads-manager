@@ -41,7 +41,7 @@ Abaixo está o diagrama de classes focando estritamente na regra de negócio e n
 {
   "login": "visitant",
   "password": "demo123"
-}
+}```
 
 ### 📦 Cadastro de um Novo Lead (Público)
 
@@ -60,7 +60,7 @@ Abaixo está o diagrama de classes focando estritamente na regra de negócio e n
   "email": "contato@startup.com",
   "phone": "16999999999",
   "optionId": [1, 4, 7] 
-}
+}```
 
 ### 📍 Mapeamento de Rotas
 
