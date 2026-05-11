@@ -59,7 +59,7 @@ json
   "name": "Startup Inovadora Ltda",
   "email": "contato@startup.com",
   "phone": "16999999999",
-  "optionId": [1, 4, 7] 
+  "optionsId": [1, 4, 7] 
 }
 
 ### 📍 Mapeamento de Rotas
