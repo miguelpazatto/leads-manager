@@ -3,10 +3,14 @@ package com.miguelpazatto.leadsmanager.services;
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
+import com.miguelpazatto.leadsmanager.dto.LeadUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.*;
+import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -264,15 +268,181 @@ class LeadServiceTest {
     }
 
     @Test
-    void delete() {
+    void deleteLead_WhenLeadIdExists_ReturnNoContent() {
+        // given
+        Lead lead = getLead();
+        Long id = 1L;
+
+        given(leadRepository.existsById(id)).willReturn(true);
+        willDoNothing().given(leadRepository).deleteById(id);
+
+        // when
+        leadService.delete(id);
+
+        // then
+        then(leadRepository).should().existsById(id);
+        then(leadRepository).should().deleteById(id);
     }
 
     @Test
-    void update() {
+    void cannotDeleteLead_WhenLeadIdDoesNotExist_ThrowsResourceNotFoundException() {
+        // given
+        Long id = 1L;
+
+        given(leadRepository.existsById(id)).willReturn(false);
+
+        // when
+        // then
+        assertThatThrownBy(()-> leadService.delete(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+
     }
 
     @Test
-    void markAsContacted() {
+    void cannotDeleteLead_WhenDatabaseHasIntegrityViolation_ThrowsDataIntegrityViolationException() {
+        // given
+        Long id = 1L;
+        String dbErrorMessage = "Database error";
+
+        DataIntegrityViolationException e = new DataIntegrityViolationException(dbErrorMessage);
+
+        given(leadRepository.existsById(id)).willReturn(true);
+        willThrow(e).given(leadRepository).deleteById(id);
+
+        // when
+        // then
+        assertThatThrownBy(()-> leadService.delete(id))
+                .isInstanceOf(DatabaseException.class)
+                .hasMessageContaining(dbErrorMessage);
+
+        then(leadRepository).should().deleteById(id);
+
+    }
+
+    @Test
+    void updateLead_WhenLeadIdExists_ReturnLeadSalesDTO() {
+        // given
+        Salesman salesman = new Salesman();
+        salesman.setId(1L);
+        salesman.setName("Salesman");
+
+        Lead changedLead = new Lead(null, "Changed Lead", "changedlead@email.com", "11988888888", salesman);
+
+        Question question = new Question(1L, "Qual seu faturamento?");
+
+        Option o1 = new Option(1L, "Até 10K", 25, question);
+        Option o2 = new Option(2L, "Até 50K", 4, question);
+
+        Answer a1 = new Answer(o1, changedLead);
+        Answer a2 = new Answer(o2, changedLead);
+        List<Answer> answers = List.of(a1, a2);
+
+        changedLead.setOptions(answers);
+
+        Long id = 1L;
+        Lead entity = getLead();
+
+        LeadUpdateDTO obj = new LeadUpdateDTO(
+                "Changed Lead",
+                "changedlead@email.com",
+                "11988888888"
+        );
+
+        given(leadRepository.existsById(id)).willReturn(true);
+        given(leadRepository.getReferenceById(id)).willReturn(entity);
+        given(leadRepository.save(any(Lead.class))).willReturn(changedLead);
+
+        // when
+        LeadSalesDTO result = leadService.update(id, obj);
+
+        // then
+        ArgumentCaptor<Lead>  leadArgumentCaptor = ArgumentCaptor.forClass(Lead.class);
+        verify(leadRepository).save(leadArgumentCaptor.capture());
+        Lead capturedLead = leadArgumentCaptor.getValue();
+
+        assertThat(result).isNotNull();
+        assertThat(result.name()).isEqualTo(capturedLead.getName());
+        assertThat(obj.name()).isEqualTo(capturedLead.getName());
+        assertThat(obj.email()).isEqualTo(capturedLead.getEmail());
+        assertThat(obj.phone()).isEqualTo(capturedLead.getPhone());
+
+    }
+
+    @Test
+    void cannotUpdateLead_WhenLeadIdDoesNotExists_ThrowsResourceNotFoundException() {
+        // given
+        LeadUpdateDTO obj = new LeadUpdateDTO(
+                "Changed Lead",
+                "changedlead@email.com",
+                "11988888888"
+        );
+
+        Long id = 1L;
+        given(leadRepository.existsById(id)).willReturn(false);
+
+        // when
+        // then
+        assertThatThrownBy(() -> leadService.update(id, obj))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+    }
+
+    @Test
+    void cannotUpdateLead_WhenEntityIsNotFound_ThrowsResourceNotFoundException() {
+        // given
+        Long id = 1L;
+
+        LeadUpdateDTO obj = new LeadUpdateDTO(
+                "Changed Lead",
+                "changedlead@email.com",
+                "11988888888"
+        );
+
+        given(leadRepository.existsById(id)).willReturn(true);
+        willThrow(EntityNotFoundException.class).given(leadRepository).getReferenceById(id);
+
+        assertThatThrownBy(() -> leadService.update(id, obj))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+
+        then(leadRepository).should().getReferenceById(id);
+    }
+
+    @Test
+    void markLeadAsContacted_WhenLeadExists_ReturnLead() {
+        // given
+        Lead lead = getLead();
+        lead.setLeadStatus(LeadStatus.NEW);
+        Long id = 1L;
+
+        given(leadRepository.getReferenceById(id)).willReturn(lead);
+
+        // when
+        leadService.markAsContacted(id);
+
+        // then
+        assertThat(lead.getLeadStatus()).isNotEqualByComparingTo(LeadStatus.NEW);
+        assertThat(lead.getLeadStatus()).isEqualTo(LeadStatus.CONTACTED);
+
+        then(leadRepository).should().getReferenceById(id);
+    }
+
+    @Test
+    void cannotMarkLeadAsContacted_WhenEntityIsNotFound_ThrowsResourceNotFoundException() {
+        // given
+        Long id = 1L;
+
+        willThrow(EntityNotFoundException.class).given(leadRepository).getReferenceById(id);
+
+        // when
+        // then
+        assertThatThrownBy(() -> leadService.markAsContacted(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+
+        then(leadRepository).should().getReferenceById(id);
+
     }
 
     private static @NonNull Lead getLead() {
