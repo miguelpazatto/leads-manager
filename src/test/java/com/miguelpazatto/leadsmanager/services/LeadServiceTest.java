@@ -12,6 +12,7 @@ import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.jspecify.annotations.NonNull;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -46,6 +47,7 @@ class LeadServiceTest {
     private OptionRepository optionRepository;
 
     @Test
+    @DisplayName("Deve retornar uma List quando houver Leads")
     void findAllLeads_WhenListIsNotEmpty_ReturnListLeadSalesDTO() {
         // given
         Lead lead = getLead();
@@ -65,6 +67,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar uma List vazia quando não houver nenhum Lead")
     void findAllLeads_WhenListIsEmpty_ReturnEmptyList() {
         // given
         given(leadRepository.findAll()).willReturn(List.of());
@@ -78,6 +81,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar um LeadSalesDTO quando ID corresponder a um Lead")
     void findLeadById_WhenIdExists_ReturnLeadSalesDTO() {
         // given
         Lead lead = getLead();
@@ -94,6 +98,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção Resource Not Found quando não houver Lead correspondente ao ID")
     void cannotFindLeadById_WhenIdDoesNotExist_ThrowsResourceNotFoundException() {
         // given
         Long id = 1L;
@@ -111,6 +116,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar LeadPublicDTO quando ID corresponder a um Lead")
     void publicFindById_WhenIdExists_ReturnLeadPublicDTO() {
         // given
         Lead lead = getLead();
@@ -130,6 +136,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção Resource Not Found quando não houver Lead correspondente ao ID")
     void cannotPublicFindById_WhenIdDoesNotExists_ThrowsResourceNotFoundException() {
         // given
         Long id = 1L;
@@ -145,6 +152,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar LeadSalesDTO quando inserir um Lead com um Opção")
     void insertLead_WhenRequestHasOneOption_ReturnLeadSalesDTO() {
         Salesman salesman = new Salesman();
 
@@ -192,6 +200,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar LeadSalesDTO quando inserir um Lead com mais de uma Opção")
     void insertLead_WhenRequestHasTwoOptions_ReturnLeadSalesDTO() {
         Salesman salesman = new Salesman();
 
@@ -244,6 +253,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção Ressource Not Found quando opção for inválida na inserção de um Lead")
     void cannotInsertLead_WhenCantFindOptionsId_ThrowsResourceNotFoundException() {
         Salesman salesman = new Salesman();
         Long invalidId = 999L;
@@ -268,6 +278,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar No Content e deletar Lead quando houver ID correspondente")
     void deleteLead_WhenLeadIdExists_ReturnNoContent() {
         // given
         Lead lead = getLead();
@@ -285,6 +296,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção Resource Not Found quando não houver ID correspondente para deletar Lead")
     void cannotDeleteLead_WhenLeadIdDoesNotExist_ThrowsResourceNotFoundException() {
         // given
         Long id = 1L;
@@ -300,6 +312,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção Database quando houver violação de integridade nos dados")
     void cannotDeleteLead_WhenDatabaseHasIntegrityViolation_ThrowsDataIntegrityViolationException() {
         // given
         Long id = 1L;
@@ -321,6 +334,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar LeadSalesDTO e alterar Lead quando houver ID correspondente")
     void updateLead_WhenLeadIdExists_ReturnLeadSalesDTO() {
         // given
         Salesman salesman = new Salesman();
@@ -370,6 +384,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção Resouce Not Found quando não houver ID correspondente para alterar Lead")
     void cannotUpdateLead_WhenLeadIdDoesNotExists_ThrowsResourceNotFoundException() {
         // given
         LeadUpdateDTO obj = new LeadUpdateDTO(
@@ -389,6 +404,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar exceção ResourceNotFound quando não encontrar entidade para alterar Lead")
     void cannotUpdateLead_WhenEntityIsNotFound_ThrowsResourceNotFoundException() {
         // given
         Long id = 1L;
@@ -410,6 +426,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar Lead como contatado quando Lead existir")
     void markLeadAsContacted_WhenLeadExists_ReturnLead() {
         // given
         Lead lead = getLead();
@@ -429,6 +446,7 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar exceção Resource Not Found ao tentar marcar como contatado quando Lead não existir")
     void cannotMarkLeadAsContacted_WhenEntityIsNotFound_ThrowsResourceNotFoundException() {
         // given
         Long id = 1L;

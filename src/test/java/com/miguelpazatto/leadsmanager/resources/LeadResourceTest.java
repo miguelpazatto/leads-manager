@@ -1,0 +1,126 @@
+package com.miguelpazatto.leadsmanager.resources;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
+import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
+import com.miguelpazatto.leadsmanager.entities.*;
+import com.miguelpazatto.leadsmanager.infra.security.TokenService;
+import com.miguelpazatto.leadsmanager.repositories.UserRepository;
+import com.miguelpazatto.leadsmanager.services.LeadService;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+import org.jspecify.annotations.NonNull;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+@WebMvcTest(LeadResource.class)
+@AutoConfigureMockMvc(addFilters = false)
+class LeadResourceTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @MockitoBean
+    private LeadService leadService;
+
+    @MockitoBean
+    private TokenService tokenService;
+
+    @MockitoBean
+    private UserRepository userRepository;
+
+    @Test
+    void findAll() {
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 200 (OK) e o Lead quando buscar por um ID existente")
+    void findById_WhenIdExists_ReturnOk() throws Exception {
+        // given
+        Long id = 1L;
+        Lead lead = getLead();
+        LeadSalesDTO leadSalesDTO = new LeadSalesDTO(lead);
+
+        given(leadService.findById(id)).willReturn(leadSalesDTO);
+
+        // when
+        // then
+        mockMvc.perform(get("/leads/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(leadSalesDTO.id()))
+                .andExpect(jsonPath("$.name").value(leadSalesDTO.name()));
+
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) quando buscar por um ID inexistente")
+    void cannotFindById_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long id = 1L;
+        given(leadService.findById(id)).willThrow(ResourceNotFoundException.class);
+
+        //when
+        //then
+        mockMvc.perform(get("/leads/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    void publicFindById() {
+    }
+
+    @Test
+    void insert() {
+    }
+
+    @Test
+    void delete() {
+    }
+
+    @Test
+    void update() {
+    }
+
+    @Test
+    void markAsContacted() {
+    }
+
+    private static @NonNull Lead getLead() {
+        Salesman salesman = new Salesman();
+        salesman.setId(1L);
+        salesman.setName("Salesman");
+
+        Lead lead = new Lead(null, "Lead", "lead@email.com", "11999999999", salesman);
+
+        Question question = new Question(1L, "Qual seu faturamento?");
+
+        Option o1 = new Option(1L, "Até 10K", 25, question);
+        Option o2 = new Option(2L, "Até 50K", 4, question);
+
+        Answer a1 = new Answer(o1, lead);
+        Answer a2 = new Answer(o2, lead);
+        List<Answer> answers = List.of(a1, a2);
+
+        lead.setOptions(answers);
+        return lead;
+    }
+
+}
