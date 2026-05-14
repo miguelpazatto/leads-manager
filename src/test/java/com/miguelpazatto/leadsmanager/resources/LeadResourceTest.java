@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,7 +46,23 @@ class LeadResourceTest {
     private UserRepository userRepository;
 
     @Test
-    void findAll() {
+    @DisplayName("Deve retornar Status 200 (OK) e uma lista de Leads quando a lista não for vazia")
+    void findAll() throws Exception {
+        // given
+        Lead lead = getLead();
+        LeadSalesDTO leadSalesDTO = new LeadSalesDTO(lead);
+        List<LeadSalesDTO> leadSalesDTOS = List.of(leadSalesDTO);
+
+        given(leadService.findAll()).willReturn(leadSalesDTOS);
+
+        // when
+        // then
+        mockMvc.perform(get("/leads")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$.[0]id").value(leadSalesDTOS.getFirst().id()))
+                .andExpect(jsonPath("$.[0]name").value(leadSalesDTOS.getFirst().name()));
     }
 
     @Test
@@ -108,7 +125,7 @@ class LeadResourceTest {
         salesman.setId(1L);
         salesman.setName("Salesman");
 
-        Lead lead = new Lead(null, "Lead", "lead@email.com", "11999999999", salesman);
+        Lead lead = new Lead(1L, "Lead", "lead@email.com", "11999999999", salesman);
 
         Question question = new Question(1L, "Qual seu faturamento?");
 
