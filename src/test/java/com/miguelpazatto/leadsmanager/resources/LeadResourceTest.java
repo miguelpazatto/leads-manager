@@ -1,6 +1,7 @@
 package com.miguelpazatto.leadsmanager.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
 import com.miguelpazatto.leadsmanager.entities.*;
@@ -47,7 +48,7 @@ class LeadResourceTest {
 
     @Test
     @DisplayName("Deve retornar Status 200 (OK) e uma lista de Leads quando a lista não for vazia")
-    void findAll() throws Exception {
+    void findAll_WhenListIsNotEmpty_ReturnOk() throws Exception {
         // given
         Lead lead = getLead();
         LeadSalesDTO leadSalesDTO = new LeadSalesDTO(lead);
@@ -63,6 +64,21 @@ class LeadResourceTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$.[0]id").value(leadSalesDTOS.getFirst().id()))
                 .andExpect(jsonPath("$.[0]name").value(leadSalesDTOS.getFirst().name()));
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 200 (OK) e uma lista vazia quando não houver Leads nela")
+    void cannotFindAll_WhenListIsEmpty_ReturnOk() throws Exception {
+        // given
+        given(leadService.findAll()).willReturn(List.of());
+
+        //when
+        //then
+        mockMvc.perform(get("/leads")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
     }
 
     @Test
@@ -89,7 +105,7 @@ class LeadResourceTest {
     @DisplayName("Deve retornar Status 404 (Not Found) quando buscar por um ID inexistente")
     void cannotFindById_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
         // given
-        Long id = 1L;
+        Long id = 999L;
         given(leadService.findById(id)).willThrow(ResourceNotFoundException.class);
 
         //when
@@ -101,7 +117,38 @@ class LeadResourceTest {
     }
 
     @Test
-    void publicFindById() {
+    void publicFindById_WhenIdDoesExist_ReturnOk() throws Exception {
+        // given
+        Long id = 1L;
+        Lead lead = getLead();
+        LeadPublicDTO leadPublicDTO = new LeadPublicDTO(lead);
+
+        given(leadService.publicFindById(id)).willReturn(leadPublicDTO);
+
+        // when
+        // then
+        mockMvc.perform(get("/leads/public/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalScore").value(leadPublicDTO.totalScore()))
+                .andExpect(jsonPath("$.title").value(leadPublicDTO.title()))
+                .andExpect(jsonPath("$.message").value(leadPublicDTO.message()))
+                .andDo(print());
+
+    }
+
+    @Test
+    void cannotPublicFindById_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long id = 999L;
+        given(leadService.publicFindById(id)).willThrow(ResourceNotFoundException.class);
+
+        // when
+        // then
+        mockMvc.perform(get("/leads/public/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
     }
 
     @Test
