@@ -22,11 +22,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @WebMvcTest(LeadResource.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -117,6 +119,7 @@ class LeadResourceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar Status 200 (Ok) e um LeadPublicDTO quando buscar por ID existente")
     void publicFindById_WhenIdDoesExist_ReturnOk() throws Exception {
         // given
         Long id = 1L;
@@ -132,12 +135,12 @@ class LeadResourceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalScore").value(leadPublicDTO.totalScore()))
                 .andExpect(jsonPath("$.title").value(leadPublicDTO.title()))
-                .andExpect(jsonPath("$.message").value(leadPublicDTO.message()))
-                .andDo(print());
+                .andExpect(jsonPath("$.message").value(leadPublicDTO.message()));
 
     }
 
     @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) quando buscar por ID inexistente")
     void cannotPublicFindById_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
         // given
         Long id = 999L;
@@ -152,11 +155,78 @@ class LeadResourceTest {
     }
 
     @Test
-    void insert() {
+    @DisplayName("Deve retornar status 201 (Created) quando a entrada de dados for válida")
+    void insertLead_WhenInputDataIsValid_ReturnIsCreated() throws Exception {
+        // given
+        Lead lead = getLead();
+        LeadRequestDTO leadRequestDTO = new LeadRequestDTO(
+                lead.getName(),
+                lead.getEmail(),
+                lead.getPhone(),
+                List.of(
+                        lead.getOptions().getFirst().getOption().getId(),
+                        lead.getOptions().get(1).getOption().getId())
+                );
+        LeadSalesDTO leadSalesDTO = new LeadSalesDTO(lead);
+
+        given(leadService.insert(any(LeadRequestDTO.class))).willReturn(leadSalesDTO);
+
+        // when
+        // then
+        mockMvc.perform(post("/leads")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leadRequestDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(leadSalesDTO.id()))
+                .andExpect(jsonPath("$.name").value(leadSalesDTO.name()))
+                .andDo(print());
     }
 
     @Test
-    void delete() {
+    @DisplayName("Deve retornar Status 400 (Bad Request) quando o DTO tiver dados inválidos")
+    void cannotInsertLead_WhenRequestDataIsInvalid_ReturnBadRequest() throws Exception {
+        // given
+        LeadRequestDTO leadRequestDTO = new LeadRequestDTO(
+                "",
+                "email@gmail.com",
+                "phone",
+                List.of(1L, 2L)
+        );
+
+        // when
+        // then
+        mockMvc.perform(post("/leads")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leadRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(leadService);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 204 (No Content) quando deletar um Lead por um ID existente")
+    void delete_WhenIdExists_ReturnsNoContent() throws Exception {
+        // given
+        Long id = 1L;
+
+        willDoNothing().given(leadService).delete(id);
+
+        // when
+        // then
+        mockMvc.perform(delete("/leads/{id}", id))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void cannotDelete_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long id = 999L;
+        willThrow(ResourceNotFoundException.class).given(leadService).delete(id);
+
+        // when
+        // then
+        mockMvc.perform(delete("/leads/{id}", id))
+                .andExpect(status().isNotFound());
     }
 
     @Test
