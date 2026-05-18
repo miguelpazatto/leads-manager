@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.LeadPublicDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.LeadSalesDTO;
+import com.miguelpazatto.leadsmanager.dto.LeadUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.*;
 import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
@@ -230,7 +231,59 @@ class LeadResourceTest {
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve retornar Status 200 (OK) e alterar um Lead quando a entrada de dados for válida ")
+    void updateLead_WhenLeadExists_ReturnsOk() throws Exception {
+        // given
+        Long id = 1L;
+
+        LeadUpdateDTO leadUpdateDTO = new LeadUpdateDTO(
+                "LeadAlterado",
+                "leadalterado@email.com",
+                "11988888888"
+        );
+
+        Lead alteredLead = getLead();
+        alteredLead.setId(id);
+        alteredLead.setName("LeadAlterado");
+        alteredLead.setEmail("leadalterado@email.com");
+        alteredLead.setPhone("11988888888");
+
+        given(leadService.update(id, leadUpdateDTO)).willReturn(new LeadSalesDTO(alteredLead));
+
+        // when
+        // then
+        mockMvc.perform(put("/leads/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leadUpdateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(alteredLead.getId()))
+                .andExpect(jsonPath("$.name").value(alteredLead.getName()))
+                .andExpect(jsonPath("$.email").value(alteredLead.getEmail()))
+                .andExpect(jsonPath("$.phone").value(alteredLead.getPhone()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) quando não houver ID correspondente para alterar Lead")
+    void cannotUpdateLead_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long id = 999L;
+
+        LeadUpdateDTO leadUpdateDTO = new LeadUpdateDTO(
+                "LeadAlterado",
+                "leadalterado@email.com",
+                "11988888888"
+        );
+
+        given(leadService.update(eq(id), any(LeadUpdateDTO.class))).willThrow(ResourceNotFoundException.class);
+
+        // when
+        // then
+        mockMvc.perform(put("/leads/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leadUpdateDTO)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
