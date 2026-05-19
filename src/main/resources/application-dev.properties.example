@@ -1,0 +1,14 @@
+# DATA-SOURCE
+spring.datasource.url=jdbc:postgresql://localhost:5432/leadsmanager_db
+spring.datasource.driverClassName=org.postgresql.Driver
+spring.datasource.username=postgres
+spring.datasource.password=COLOQUE_SUA_SENHA_AQUI
+
+# JPA, SQL
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.defer-datasource-initialization=true
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.hibernate.ddl-auto=update
+
+api.security.token.secret=COLOQUE_SUA_CHAVE_SECRETA_LOCAL_AQUI

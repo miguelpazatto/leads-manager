@@ -287,7 +287,56 @@ class LeadResourceTest {
     }
 
     @Test
-    void markAsContacted() {
+    @DisplayName("Deve retornar Status 400 (Bad Request) ao tentar alterar Lead quando o DTO tiver dados inválidos")
+    void cannotUpdateLead_WhenDTOIsNotValid_ReturnBadRequest() throws Exception {
+        // given
+        Long id = 1L;
+
+        LeadUpdateDTO leadUpdateDTO = new LeadUpdateDTO(
+                " ",
+                "leadalterado",
+                "988888888"
+        );
+
+        // when
+        // then
+        mockMvc.perform(put("/leads/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leadUpdateDTO)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(leadService);
+
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 204 (No Content) quando marcar Lead como contatado")
+    void markLeadAsContacted_WhenLeadExists_ReturnNoContent() throws Exception {
+        // given
+        Long id= 1L;
+
+        willDoNothing().given(leadService).markAsContacted(id);
+
+        // when
+        // then
+        mockMvc.perform(put("/leads/{id}/contacted", id))
+                .andExpect(status().isNoContent());
+
+        verify(leadService).markAsContacted(id);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) quando tentar marcar um Lead com ID inexistente como contatado")
+    void cannotMarkLeadAsContacted_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long id = 999L;
+
+        willThrow(ResourceNotFoundException.class).given(leadService).markAsContacted(id);
+
+        // when
+        // then
+        mockMvc.perform(put("/leads/{id}/contacted", id))
+                .andExpect(status().isNotFound());
     }
 
     private static @NonNull Lead getLead() {
