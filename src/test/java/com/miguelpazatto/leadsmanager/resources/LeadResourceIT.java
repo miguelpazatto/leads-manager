@@ -245,7 +245,7 @@ public class LeadResourceIT {
                 .andDo(print());
 
         Lead alteredLead = leadRepository.findById(savedLead.getId()).get();
-        Assertions.assertEquals(savedLead.getName(), alteredLead.getName());
+        Assertions.assertEquals(leadUpdateDTO.name(), alteredLead.getName());
     }
 
     @Test
