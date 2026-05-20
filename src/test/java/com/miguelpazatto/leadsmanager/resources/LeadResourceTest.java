@@ -120,7 +120,7 @@ class LeadResourceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar Status 200 (Ok) e um LeadPublicDTO quando buscar por ID existente")
+    @DisplayName("Deve retornar Status 200 (OK) e um LeadPublicDTO quando buscar por ID existente")
     void publicFindById_WhenIdDoesExist_ReturnOk() throws Exception {
         // given
         Long id = 1L;
@@ -156,7 +156,7 @@ class LeadResourceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar status 201 (Created) quando a entrada de dados for válida")
+    @DisplayName("Deve retornar Status 201 (Created) quando a entrada de dados for válida")
     void insertLead_WhenInputDataIsValid_ReturnIsCreated() throws Exception {
         // given
         Lead lead = getLead();
@@ -219,6 +219,7 @@ class LeadResourceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) quando tentar deletar um Lead com ID inexistente")
     void cannotDelete_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
         // given
         Long id = 999L;
@@ -231,7 +232,7 @@ class LeadResourceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar Status 200 (OK) e alterar um Lead quando a entrada de dados for válida ")
+    @DisplayName("Deve retornar Status 200 (OK) e alterar um Lead quando a entrada de dados for válida")
     void updateLead_WhenLeadExists_ReturnsOk() throws Exception {
         // given
         Long id = 1L;
