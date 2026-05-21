@@ -5,6 +5,7 @@ import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.DisplayName;
@@ -13,16 +14,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SalesmanServiceTest {
@@ -86,7 +87,7 @@ class SalesmanServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar ResourceNotFoundExceptio quando não houver ID correspondente")
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
     void cannotFindSalesmanById_WhenIdDoesNotExist_ThrowsResourceNotFoundException() {
         // given
         Long id = 999L;
@@ -102,7 +103,55 @@ class SalesmanServiceTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Deve deletar Salesman quando houver ID correspondente")
+    void deleteSalesman_WhenIdDoesExist_ReturnVoid() {
+        // given
+        Salesman salesman = getSalesman();
+        given(salesmanRepository.existsById(salesman.getId())).willReturn(true);
+        willDoNothing().given(salesmanRepository).deleteById(salesman.getId());
+
+        // when
+        salesmanService.delete(salesman.getId());
+
+        // then
+        verify(salesmanRepository, times(1)).existsById(salesman.getId());
+        verify(salesmanRepository, times(1)).deleteById(salesman.getId());
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    void cannotDeleteSalesman_WhenIdDoesNotExist_ThrowsResourceNotFoundException() {
+        // given
+        given(salesmanRepository.existsById(999L)).willReturn(false);
+
+        // when
+        // then
+        assertThatThrownBy(() ->  salesmanService.delete(999L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + 999);
+
+        verify(salesmanRepository, times(1)).existsById(999L);
+        verify(salesmanRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Deve lançar DatabaseException quando houer violação da integridade dos dados")
+    void cannotDeleteSalesman_WhenHasDataIntegrityViolation_ThrowsDatabaseException() {
+        // given
+        Salesman salesman = getSalesman();
+        DataIntegrityViolationException dataIntegrityViolationException = new DataIntegrityViolationException("Database error");
+
+        given(salesmanRepository.existsById(salesman.getId())).willReturn(true);
+        willThrow(dataIntegrityViolationException).given(salesmanRepository).deleteById(salesman.getId());
+
+        // when
+        // then
+        assertThatThrownBy(() ->  salesmanService.delete(salesman.getId()))
+                .isInstanceOf(DatabaseException.class)
+                .hasMessageContaining(dataIntegrityViolationException.getMessage());
+
+        verify(salesmanRepository, times(1)).existsById(salesman.getId());
+        verify(salesmanRepository, times(1)).deleteById(salesman.getId());
     }
 
     @Test
