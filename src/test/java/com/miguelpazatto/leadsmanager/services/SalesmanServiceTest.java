@@ -1,12 +1,15 @@
 package com.miguelpazatto.leadsmanager.services;
 
+import com.miguelpazatto.leadsmanager.dto.LeadDTO;
 import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
+import com.miguelpazatto.leadsmanager.dto.SalesmanUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -87,7 +91,7 @@ class SalesmanServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente para encontrar")
     void cannotFindSalesmanById_WhenIdDoesNotExist_ThrowsResourceNotFoundException() {
         // given
         Long id = 999L;
@@ -119,7 +123,7 @@ class SalesmanServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente para deletar")
     void cannotDeleteSalesman_WhenIdDoesNotExist_ThrowsResourceNotFoundException() {
         // given
         given(salesmanRepository.existsById(999L)).willReturn(false);
@@ -155,7 +159,78 @@ class SalesmanServiceTest {
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve retornar um SalesmanDTO atualizado quando houver ID correspondente")
+    void updateSalesman_WhenIdDoesExist_ReturnSalesmanDTO() {
+        // given
+        Salesman salesman = getSalesman();
+        SalesmanUpdateDTO salesmanUpdateDTO = new SalesmanUpdateDTO(
+                "Updated Salesman",
+                "updatedsalesman@email.com",
+                "11888888888"
+        );
+
+        given(salesmanRepository.existsById(salesman.getId())).willReturn(true);
+        given(salesmanRepository.getReferenceById(salesman.getId())).willReturn(salesman);
+        given(salesmanRepository.save(any(Salesman.class))).willReturn(salesman);
+
+        // when
+        SalesmanDTO salesmanDTO = salesmanService.update(salesman.getId(), salesmanUpdateDTO);
+
+        // then
+        assertThat(salesman.getId()).isEqualTo(salesmanDTO.id());
+        assertThat(salesmanUpdateDTO.name()).isEqualTo(salesmanDTO.name());
+        assertThat(salesmanUpdateDTO.email()).isEqualTo(salesmanDTO.email());
+
+        verify(salesmanRepository, times(1)).existsById(salesman.getId());
+        verify(salesmanRepository, times(1)).getReferenceById(salesman.getId());
+        verify(salesmanRepository, times(1)).save(any(Salesman.class));
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente para atualizar")
+    void cannotUpdateSalesman_WhenIdDoesNotExist_ThrowsResourceNotFoundException() {
+        // given
+        SalesmanUpdateDTO salesmanUpdateDTO = new SalesmanUpdateDTO(
+                "Updated Salesman",
+                "updatedsalesman@email.com",
+                "11888888888"
+        );
+        given(salesmanRepository.existsById(999L)).willReturn(false);
+
+        // when
+        // then
+        assertThatThrownBy(() ->  salesmanService.update(999L, salesmanUpdateDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + 999);
+
+        verify(salesmanRepository, times(1)).existsById(999L);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando o getReferenceById não encontrar a entidade")
+    void cannotUpdateSalesman_WhenEntityNotFound_ThrowsResourceNotFoundException() {
+        // given
+        Long id = 1L;
+        SalesmanUpdateDTO salesmanUpdateDTO = new SalesmanUpdateDTO(
+                "Updated Salesman",
+                "updatedsalesman@email.com",
+                "11888888888"
+        );
+
+        given(salesmanRepository.existsById(id)).willReturn(true);
+        given(salesmanRepository.getReferenceById(id)).willThrow(EntityNotFoundException.class);
+
+
+        // when
+        // then
+        assertThatThrownBy(() ->  salesmanService.update(id, salesmanUpdateDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + 1L);
+
+        verify(salesmanRepository, times(1)).existsById(id);
+        verify(salesmanRepository, times(1)).getReferenceById(id);
+
+        verify(salesmanRepository, never()).save(any());
     }
 
     @Test
