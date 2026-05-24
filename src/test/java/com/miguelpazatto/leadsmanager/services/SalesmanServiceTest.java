@@ -7,6 +7,7 @@ import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 import com.miguelpazatto.leadsmanager.repositories.SalesmanRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -234,7 +235,35 @@ class SalesmanServiceTest {
     }
 
     @Test
-    void assignSalesman() {
+    @DisplayName("Deve retornar o Salesman mais ocioso com a data de atribuição personalizada")
+    void assignSalesman_WhenSalesmanExist_ReturnAssignedSalesman() {
+        // given
+        Salesman salesman = getSalesman();
+        salesman.setLastLeadDate(null);
+        given(salesmanRepository.findFirstByOrderByLastLeadDateAsc()).willReturn(Optional.of(salesman));
+
+        // when
+        Salesman assignedSalesman = salesmanService.assignSalesman();
+
+        // then
+        assertThat(assignedSalesman.getId()).isEqualTo(salesman.getId());
+        assertThat(assignedSalesman.getLastLeadDate()).isNotNull();
+        verify(salesmanRepository, times(1)).findFirstByOrderByLastLeadDateAsc();
+    }
+
+    @Test
+    @DisplayName("Deve lançar BusinessException quando não houver Salesman disponível")
+    void cannotAssignSalesman_WhenNoSalesmanAvaliable_ThrowsBusinessException() {
+        // given
+        given(salesmanRepository.findFirstByOrderByLastLeadDateAsc()).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() ->  salesmanService.assignSalesman())
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Nenhum vendedor disponível");
+
+        verify(salesmanRepository, times(1)).findFirstByOrderByLastLeadDateAsc();
     }
 
     private static @NotNull Salesman getSalesman() {
