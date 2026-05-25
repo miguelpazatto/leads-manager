@@ -2,6 +2,7 @@ package com.miguelpazatto.leadsmanager.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;
+import com.miguelpazatto.leadsmanager.dto.SalesmanUpdateDTO;
 import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
 import com.miguelpazatto.leadsmanager.services.SalesmanService;
@@ -16,7 +17,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
@@ -149,6 +149,78 @@ class SalesmanResourceTest {
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve retornar Status 200 (OK) quando alterar salesman")
+    void updateSalesman_WhenIdExist_ReturnOk() throws Exception {
+        SalesmanUpdateDTO  salesmanUpdateDTO = new SalesmanUpdateDTO(
+                "Updated Salesman",
+                "updatedsalesman@email.com",
+                "11888888888"
+        );
+        Long id = 1L;
+
+        SalesmanDTO salesmanDTO = new SalesmanDTO(
+                1L,
+                salesmanUpdateDTO.name(),
+                salesmanUpdateDTO.email(),
+                salesmanUpdateDTO.phone(),
+                List.of()
+        );
+
+
+        given(salesmanService.update(id, salesmanUpdateDTO)).willReturn(salesmanDTO);
+
+        mockMvc.perform(put("/salesman/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(salesmanUpdateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(salesmanUpdateDTO.name()))
+                .andExpect(jsonPath("$.email").value(salesmanUpdateDTO.email()))
+                .andExpect(jsonPath("$.phone").value(salesmanUpdateDTO.phone()));
+
+        verify(salesmanService, times(1)).update(id, salesmanUpdateDTO);
+
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 400 (Bad Request) quando entrada de dados for inválida")
+    void cannotUpdateSalesman_WhenDTOIsInvalid_ReturnBadRequest() throws Exception {
+        SalesmanUpdateDTO  salesmanUpdateDTO = new SalesmanUpdateDTO(
+                " ",
+                "updatedsalesman",
+                "118"
+        );
+        Long id = 1L;
+
+        mockMvc.perform(put("/salesman/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(salesmanUpdateDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(salesmanService, never()).update(id, salesmanUpdateDTO);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 404 (Not found) quando não existir ID correspondente para alterar")
+    void cannotUpdateSalesman_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        Long id = 999L;
+        SalesmanUpdateDTO  salesmanUpdateDTO = new SalesmanUpdateDTO(
+                "Updated Salesman",
+                "updatedsalesman@email.com",
+                "11888888888"
+        );
+
+        given(salesmanService.update(id, salesmanUpdateDTO))
+                .willThrow(new ResourceNotFoundException("Resource not found. Id " + id));
+
+        mockMvc.perform(put("/salesman/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(salesmanUpdateDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found"));
+
+        verify(salesmanService, times(1)).update(id, salesmanUpdateDTO);
     }
 }
