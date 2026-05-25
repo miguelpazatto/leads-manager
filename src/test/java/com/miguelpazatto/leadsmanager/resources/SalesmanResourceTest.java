@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -121,8 +121,31 @@ class SalesmanResourceTest {
     }
 
     @Test
-    void delete() {
-        
+    @DisplayName("Deve retornar Status 204 (No Content) quando deletar um salesman")
+    void delete_WhenIdExist_ReturnNoContent() throws Exception {
+        Long id = 1L;
+        willDoNothing().given(salesmanService).delete(id);
+
+        mockMvc.perform(delete("/salesman/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        verify(salesmanService, times(1)).delete(id);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) ao tentar deletar quando não houver ID correspondente")
+    void cannotDelete_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        Long id = 999L;
+        ResourceNotFoundException resourceNotFoundException = new ResourceNotFoundException("Resource not found. Id " + id);
+        willThrow(resourceNotFoundException).given(salesmanService).delete(id);
+
+        mockMvc.perform(delete("/salesman/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found"));
+
+        verify(salesmanService, times(1)).delete(id);
     }
 
     @Test
