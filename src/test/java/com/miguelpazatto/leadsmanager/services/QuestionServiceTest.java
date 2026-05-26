@@ -1,12 +1,14 @@
 package com.miguelpazatto.leadsmanager.services;
 
 import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
+import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,7 +18,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -92,8 +96,30 @@ class QuestionServiceTest {
     }
 
     @Test
-    
-    void insert() {
+    @DisplayName("Deve salvar uma question quando dados forem válidos")
+    void insert_WhenDataIsValid_ReturnQuestionDTO() {
+       QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+               "Enunciado a ser incluido na questão nova"
+       );
+
+        Question question = new Question(
+                1L,
+                "Enunciado a ser incluido na questão nova"
+        );
+
+        given(questionRepository.save(any(Question.class))).willReturn(question);
+
+        QuestionDTO questionDTO = questionService.insert(questionRequestDTO);
+
+        ArgumentCaptor<Question> captor = ArgumentCaptor.forClass(Question.class);
+        verify(questionRepository).save(captor.capture());
+        Question capturedQuestion =  captor.getValue();
+
+        assertThat(capturedQuestion.getId()).isNull();
+        assertThat(capturedQuestion.getStatement()).isEqualTo(questionRequestDTO.statement());
+
+        assertThat(questionDTO.id()).isEqualTo(question.getId());
+        assertThat(questionDTO.statement()).isEqualTo(question.getStatement());
     }
 
     @Test
