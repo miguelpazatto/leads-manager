@@ -3,6 +3,7 @@ package com.miguelpazatto.leadsmanager.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
 import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
+import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
 import com.miguelpazatto.leadsmanager.services.QuestionService;
@@ -21,12 +22,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(QuestionResource.class)
@@ -142,10 +141,53 @@ class QuestionResourceTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Deve retornar Status 400 (Bad Request) quando tentar inserir uma Question com dados inválidos")
+    void cannotInsertQuestion_WhenRequestDataIsInvalid_ReturnBadRequest() throws Exception {
+
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+                ""
+        );
+
+        mockMvc.perform(post("/questions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(questionRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(questionService, never()).insert(any());
+
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve retornar Status 204 (No Content) quando deletar uma Question")
+    void deleteQuestion_WhenIdExist_ReturnNoContent() throws Exception {
+        Long id = 1L;
+
+        willDoNothing().given(questionService).delete(id);
+
+        mockMvc.perform(delete("/questions/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        verify(questionService, times(1)).delete(id);
+
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 (Not Found) quando tentar deletar uma Question sem ID no banco")
+    void cannotDeleteQuestion_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        Long id = 999L;
+        willThrow(new ResourceNotFoundException(id)).given(questionService).delete(id);
+
+        mockMvc.perform(delete("/questions/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found"));
+
+        verify(questionService, times(1)).delete(id);
+    }
+
+    @Test
+    void update()    {
     }
 }
