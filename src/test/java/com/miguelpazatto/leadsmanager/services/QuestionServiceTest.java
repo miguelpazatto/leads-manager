@@ -6,6 +6,7 @@ import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -137,7 +138,7 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    @DisplayName("Deve lançar ResourceNotFoundException ao tentar deletar quando não houver ID correspondente")
     void cannotDeleteQuestion_WhenIdDoesNotExist_ThrowResourceNotFoundException() {
         Long id = 999L;
         given(questionRepository.existsById(id)).willReturn(false);
@@ -169,6 +170,66 @@ class QuestionServiceTest {
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve alterar uma question e retornar QuestionDTO quando houver ID correspondente")
+    void updateQuestion_WhenIdExist_ReturnQuestionDTO() {
+        Question question = new Question(
+                1L,
+                "Enunciado"
+        );
+        Long id = 1L;
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+                "EnunciadoAlterado"
+        );
+
+        given(questionRepository.existsById(id)).willReturn(true);
+        given(questionRepository.getReferenceById(id)).willReturn(question);
+        given(questionRepository.save(question)).willReturn(question);
+
+        QuestionDTO questionDTO = questionService.update(id, questionRequestDTO);
+
+        assertThat(questionDTO.id()).isEqualTo(question.getId());
+        assertThat(questionDTO.statement()).isEqualTo(questionRequestDTO.statement());
+
+        verify(questionRepository, times(1)).existsById(id);
+        verify(questionRepository, times(1)).getReferenceById(id);
+        verify(questionRepository, times(1)).save(question);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException ao tentar alterar quando não houver ID correspondente")
+    void cannotUpdate_WhenIdDoesNotExist_ThrowResourceNotFoundException() {
+        Long id = 999L;
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+                "EnunciadoAlterado"
+        );
+
+        given(questionRepository.existsById(id)).willReturn(false);
+        assertThatThrownBy(() -> questionService.update(id, questionRequestDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+
+        verify(questionRepository, times(1)).existsById(id);
+        verify(questionRepository, never()).getReferenceById(anyLong());
+        verify(questionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não encontrar entidade no banco")
+    void cannotUpdate_WhenEntityDoesNotExist_ThrowResourceNotFoundException() {
+        Long id = 1L;
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+                "EnunciadoAlterado"
+        );
+
+        given(questionRepository.existsById(id)).willReturn(true);
+        willThrow(EntityNotFoundException.class).given(questionRepository).getReferenceById(id);
+
+        assertThatThrownBy(() -> questionService.update(id, questionRequestDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+
+        verify(questionRepository, times(1)).existsById(id);
+        verify(questionRepository, times(1)).getReferenceById(id);
+        verify(questionRepository, never()).save(any());
     }
 }
