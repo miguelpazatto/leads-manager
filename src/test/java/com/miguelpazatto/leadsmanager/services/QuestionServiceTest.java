@@ -4,6 +4,7 @@ import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
 import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -123,7 +124,48 @@ class QuestionServiceTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Deve deletar uma question quando houver ID correspondente")
+    void deleteQuestion_WhenIdExist_ReturnVoid() {
+        Long id = 1L;
+        given(questionRepository.existsById(id)).willReturn(true);
+        willDoNothing().given(questionRepository).deleteById(id);
+
+        questionService.delete(id);
+
+        verify(questionRepository, times(1)).existsById(id);
+        verify(questionRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    void cannotDeleteQuestion_WhenIdDoesNotExist_ThrowResourceNotFoundException() {
+        Long id = 999L;
+        given(questionRepository.existsById(id)).willReturn(false);
+
+        assertThatThrownBy(() ->  questionService.delete(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found. Id " + id);
+
+        verify(questionRepository, times(1)).existsById(id);
+        verify(questionRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Deve lançar DatabaseException quando houver violação da integridade dos dados")
+    void cannotDeleteQuestion_WhenDataViolated_ThrowDatabaseException() {
+        Long id = 1L;
+
+        DataIntegrityViolationException e = new DataIntegrityViolationException("Database error");
+
+        given(questionRepository.existsById(id)).willReturn(true);
+        willThrow(e).given(questionRepository).deleteById(id);
+
+        assertThatThrownBy(() ->  questionService.delete(id))
+                .isInstanceOf(DatabaseException.class)
+                .hasMessageContaining("Database error");
+
+        verify(questionRepository, times(1)).existsById(id);
+        verify(questionRepository, times(1)).deleteById(id);
     }
 
     @Test
