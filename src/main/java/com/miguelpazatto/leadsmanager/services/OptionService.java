@@ -39,17 +39,21 @@ public class OptionService {
 	}
 	
 	public OptionResponseDTO insert(OptionRequestDTO dto) {
-		Option option = new Option();
-		option.setDescription(dto.description());
-		option.setWeight(dto.weight());
-		
-		Question question = questionRepository.getReferenceById(dto.questionId());
-		option.setQuestion(question);
-		
-		option = repository.save(option);
-		
-		return new OptionResponseDTO(option);
-	}
+        try {
+            Option option = new Option();
+            option.setDescription(dto.description());
+            option.setWeight(dto.weight());
+
+            Question question = questionRepository.getReferenceById(dto.questionId());
+            option.setQuestion(question);
+
+            option = repository.save(option);
+
+            return new OptionResponseDTO(option);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(dto.questionId());
+        }
+    }
 	
 	public void delete(Long id) {
 		if (!repository.existsById(id)) {

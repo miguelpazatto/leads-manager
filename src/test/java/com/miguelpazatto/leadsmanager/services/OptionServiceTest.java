@@ -1,19 +1,25 @@
 package com.miguelpazatto.leadsmanager.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
 import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
+import jdk.javadoc.doclet.Doclet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -22,9 +28,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -118,11 +124,101 @@ class OptionServiceTest {
     }
 
     @Test
-    void insert() {
+    @DisplayName("Deve retornar OptionResponseDTO quando inserir uma Option")
+    void insertOption_WhenDataIsValid_ReturnOptionResponseDTO() {
+        Long questionId = 1L;
+        Question question = new Question(
+                questionId,
+                "Enunciado"
+        );
+        OptionRequestDTO dto = new OptionRequestDTO(
+                "Enunciado inserido",
+                8,
+                questionId
+        );
+        Option option = new Option(
+                1L,
+                "Enunciado inserido",
+                8,
+                question
+        );
+
+        given(questionRepository.getReferenceById(questionId)).willReturn(question);
+        given(optionRepository.save(any(Option.class))).willReturn(option);
+
+        OptionResponseDTO optionResponseDTO = optionService.insert(dto);
+
+        assertThat(optionResponseDTO.id()).isEqualTo(option.getId());
+        assertThat(optionResponseDTO.description()).isEqualTo("Enunciado inserido");
+        assertThat(optionResponseDTO.weight()).isEqualTo(8);
+
+        ArgumentCaptor<Option> captor =  ArgumentCaptor.forClass(Option.class);
+        verify(optionRepository).save(captor.capture());
+        Option capturedOption = captor.getValue();
+
+        assertThat(capturedOption.getDescription()).isEqualTo("Enunciado inserido");
+        assertThat(capturedOption.getWeight()).isEqualTo(8);
+        assertThat(capturedOption.getQuestion().getId()).isEqualTo(question.getId());
     }
 
     @Test
-    void delete() {
+    @DisplayName("Deve lançar ResourceNotFoundException quando tentar inserir Option para uma Question inexistente")
+    void insertOption_WhenQuestionIdDoesNotExist_ThrowResourceNotFoundException() {
+
+        Long invalidQuestionId = 999L;
+        OptionRequestDTO dto = new OptionRequestDTO("Enunciado", 8, invalidQuestionId);
+
+        given(questionRepository.getReferenceById(invalidQuestionId))
+                .willThrow(new EntityNotFoundException());
+
+        assertThatThrownBy(() -> optionService.insert(dto))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found");
+    }
+
+    @Test
+    @DisplayName("Deve deletar uma Option quando houver ID correspondente")
+    void deleteOption_WhenIdDoesExist_ReturnVoid() {
+
+        Long optionId= 1L;
+        given(optionRepository.existsById(optionId)).willReturn(true);
+
+        optionService.delete(optionId);
+
+        verify(optionRepository, times(1)).existsById(optionId);
+        verify(optionRepository, times(1)).deleteById(optionId);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente para deletar")
+    void cannotDeleteOption_WhenIdDoesNotExist_ThrowResourceNotFoundException() {
+        Long optionId = 999L;
+        given(optionRepository.existsById(optionId)).willReturn(false);
+
+        assertThatThrownBy(() -> optionService.delete(optionId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found");
+
+        verify(optionRepository, times(1)).existsById(optionId);
+        verify(optionRepository, never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar DatabaseException quando houver violação da integridade do banco")
+    void cannotDeleteOption_WhenDatabaseIntegrityViolation_ThrowDatabaseException() {
+
+        Long id = 1L;
+        DataIntegrityViolationException e = new DataIntegrityViolationException("Database error");
+
+        given(optionRepository.existsById(id)).willReturn(true);
+        willThrow(e).given(optionRepository).deleteById(id);
+
+        assertThatThrownBy(() -> optionService.delete(id))
+                .isInstanceOf(DatabaseException.class)
+                .hasMessageContaining("Database error");
+
+        verify(optionRepository, times(1)).existsById(id);
+        verify(optionRepository, times(1)).deleteById(id);
     }
 
     @Test
