@@ -6,6 +6,7 @@ import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -98,6 +100,19 @@ class OptionServiceTest {
         assertThat(optionResponseDTO.id()).isEqualTo(option.getId());
         assertThat(optionResponseDTO.description()).isEqualTo(option.getDescription());
         assertThat(optionResponseDTO.weight()).isEqualTo(option.getWeight());
+
+        verify(optionRepository, times(1)).findById(id);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    void cannotFindOptionById_WhenIdDoesNotExist_ThrowResourceNotFoundException() {
+        Long id = 999L;
+        given(optionRepository.findById(id)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() ->  optionService.findById(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found");
 
         verify(optionRepository, times(1)).findById(id);
     }
