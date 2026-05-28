@@ -188,6 +188,52 @@ class QuestionResourceTest {
     }
 
     @Test
-    void update()    {
+    @DisplayName("Deve retornar Status 200 (OK) quando alterar uma questão com ID existente")
+    void updateQuestion_WhenIdDoesExist_ReturnOk() throws Exception {
+
+        Long id = 1L;
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+                "Enunciado alterado"
+        );
+        QuestionDTO questionDTO = new QuestionDTO(
+                1L,
+                "Enunciado alterado",
+                List.of()
+        );
+
+        given(questionService.update(id, questionRequestDTO)).willReturn(questionDTO);
+
+        mockMvc.perform(put("/questions/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(questionRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(questionDTO.id()))
+                .andExpect(jsonPath("$.statement").value(questionDTO.statement()));
+
+        verify(questionService, times(1)).update(id, questionRequestDTO);
+    }
+
+    @Test
+    @DisplayName("Deve lançar Status 404 (Not Found) quando não tiver ID correspondente para alterar")
+    void cannotUpdateQuestion_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+
+        Long id = 999L;
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO(
+
+                "Enunciado alterado"
+
+        );
+
+        given(questionService.update(id, questionRequestDTO)).willThrow(new ResourceNotFoundException(id));
+
+        mockMvc.perform(put("/questions/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(questionRequestDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found"));
+
+        verify(questionService, times(1)).update(id, questionRequestDTO);
     }
 }
