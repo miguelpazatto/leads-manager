@@ -25,7 +25,8 @@ public class OptionService {
 	@Autowired
 	private OptionRepository repository;
 	
-	@Autowired QuestionRepository questionRepository;
+	@Autowired
+	QuestionRepository questionRepository;
 	
 	public List<OptionResponseDTO> findAll() {
 		List<Option> options = repository.findAll();
