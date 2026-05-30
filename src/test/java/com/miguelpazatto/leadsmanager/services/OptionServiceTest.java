@@ -3,6 +3,7 @@ package com.miguelpazatto.leadsmanager.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
+import com.miguelpazatto.leadsmanager.dto.OptionUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
@@ -222,6 +223,71 @@ class OptionServiceTest {
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve alterar uma Option quando ID e Entidade existirem")
+    void updateOption_WhenIdAndEntityExists_ReturnOptionResponseDTO() {
+        Long optionId = 1L;
+        OptionUpdateDTO dto = new OptionUpdateDTO("Enunciado alterado", 9);
+
+        Question question = new Question(1L, "Enunciado da Questão");
+
+        Option existingOption = new Option(optionId, "Enunciado antigo", 5, question);
+
+        Option updatedOptionMock = new Option(optionId, "Enunciado alterado", 9, question);
+
+        given(optionRepository.existsById(optionId)).willReturn(true);
+        given(optionRepository.getReferenceById(optionId)).willReturn(existingOption);
+        given(optionRepository.save(any(Option.class))).willReturn(updatedOptionMock);
+
+        OptionResponseDTO responseDTO = optionService.update(optionId, dto);
+
+        assertThat(responseDTO.id()).isEqualTo(optionId);
+        assertThat(responseDTO.description()).isEqualTo(dto.description());
+        assertThat(responseDTO.weight()).isEqualTo(dto.weight());
+
+        verify(optionRepository, times(1)).existsById(optionId);
+        verify(optionRepository, times(1)).getReferenceById(optionId);
+
+        ArgumentCaptor<Option> captor = ArgumentCaptor.forClass(Option.class);
+        verify(optionRepository, times(1)).save(captor.capture());
+
+        Option capturedOption = captor.getValue();
+        assertThat(capturedOption.getDescription()).isEqualTo(dto.description());
+        assertThat(capturedOption.getWeight()).isEqualTo(dto.weight());
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não houver ID correspondente")
+    void cannotUpdateOption_WhenIdDoesNotExist_ThrowResourceNotFoundException() {
+        // given
+        Long optionId = 999L;
+        given(optionRepository.existsById(optionId)).willReturn(false);
+
+        // when - then
+        assertThatThrownBy(() -> optionService.update(optionId, new OptionUpdateDTO("Enunciado alterado", 9)))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found");
+
+        verify(optionRepository, times(1)).existsById(optionId);
+        verify(optionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar ResourceNotFoundException quando não encontrar a entidade")
+    void cannotUpdateOption_WhenEntityNotFound_ThrowResourceNotFoundException() {
+        // given
+        Long optionId = 1L;
+        OptionUpdateDTO dto = new OptionUpdateDTO("Enunciado alterado", 8);
+
+        given(optionRepository.existsById(optionId)).willReturn(true);
+        given(optionRepository.getReferenceById(optionId)).willThrow(new EntityNotFoundException());
+
+        // when - then
+        assertThatThrownBy(() -> optionService.update(optionId, dto))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Resource not found");
+
+        verify(optionRepository, times(1)).existsById(optionId);
+        verify(optionRepository, times(1)).getReferenceById(optionId);
+        verify(optionRepository, never()).save(any());
     }
 }
