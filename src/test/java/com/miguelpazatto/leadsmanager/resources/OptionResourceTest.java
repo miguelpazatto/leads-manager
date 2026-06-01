@@ -1,6 +1,7 @@
 package com.miguelpazatto.leadsmanager.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
 import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
@@ -16,14 +17,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,7 +47,7 @@ class OptionResourceTest {
    private UserRepository userRepository;
 
     @Test
-    @DisplayName("Deve mostrar todas as Options quando lista não for vazia")
+    @DisplayName("Deve retornar Status 200 (OK) e mostrar todas as Options quando lista não for vazia")
     void findAll_WhenListIsNotEmpty_ReturnOK() throws Exception {
         // given
         OptionResponseDTO optionResponseDTO = new OptionResponseDTO(
@@ -69,7 +70,7 @@ class OptionResourceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar uma lista vazia quando não houver options")
+    @DisplayName("Deve retornar Status 200 (OK) e uma lista vazia quando não houver options")
     void findAll_WhenListIsEmpty_ReturnOk() throws Exception {
         // given
         List<OptionResponseDTO> optionList = List.of();
@@ -85,7 +86,7 @@ class OptionResourceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar uma Option quando houver ID correspondente")
+    @DisplayName("Deve retornar Status 200 (OK) e uma Option quando houver ID correspondente")
     void findById_WhenIdDoesExist_ReturnOk() throws Exception {
         // given
         OptionResponseDTO optionResponseDTO = new OptionResponseDTO(
@@ -108,7 +109,7 @@ class OptionResourceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar ResourceNotFoundException quando o ID não existir")
+    @DisplayName("Deve retornar Status 404 (Not Found) quando o ID não existir")
     void findById_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
         // given
         Long optionId = 999L;
@@ -124,11 +125,80 @@ class OptionResourceTest {
     }
 
     @Test
-    void insert() {
+    @DisplayName("Deve retornar Status 201 (Created) e inserir uma Option quando dados forem válidos")
+    void insert_WhenDataIsValid_ReturnCreated() throws Exception {
+        Question question = new Question(1L, "Enunciado da questão");
+        OptionRequestDTO newOption = new OptionRequestDTO(
+                "Enunciado da opção",
+                12,
+                1L
+        );
+        OptionResponseDTO insertedOption = new OptionResponseDTO(
+                1L,
+                "Enunciado da opção",
+                12
+        );
+
+        given(optionService.insert(newOption)).willReturn(insertedOption);
+
+        // when - then
+        mockMvc.perform(post("/options")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newOption)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(insertedOption.id()))
+                .andExpect(jsonPath("$.description").value(insertedOption.description()));
+
+        verify(optionService, times(1)).insert(newOption);
     }
 
     @Test
-    void delete() {
+    @DisplayName("Deve retornar Status 400 (Bad Request) quando dados de entrada forem inválidos")
+    void insert_WhenDataIsInvalid_ReturnBadRequest() throws Exception {
+        // given
+        OptionRequestDTO newOption = new OptionRequestDTO(
+                "  ",
+                1,
+                1L
+        );
+
+        // when - then
+        mockMvc.perform(post("/options")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newOption)))
+                .andExpect(status().isBadRequest());
+
+        verify(optionService, never()).insert(newOption);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 204 (No Content) quando deletar uma Option")
+    void delete_WhenIdDoesExist_ReturnNoContent() throws Exception {
+        // given
+        Long optionId = 1L;
+        willDoNothing().given(optionService).delete(optionId);
+
+        // when - then
+        mockMvc.perform(delete("/options/{id}", optionId))
+                .andExpect(status().isNoContent());
+
+        verify(optionService, times(1)).delete(optionId);
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 (Not Found) quando não houver ID correspondente para deletar")
+    void delete_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long optionId = 999L;
+        willThrow(new ResourceNotFoundException("Resource not found")).given(optionService).delete(optionId);
+
+        mockMvc.perform(delete("/options/{id}", optionId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found"));
+
+        verify(optionService, times(1)).delete(optionId);
     }
 
     @Test
