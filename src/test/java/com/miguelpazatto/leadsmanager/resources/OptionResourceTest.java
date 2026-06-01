@@ -3,7 +3,7 @@ package com.miguelpazatto.leadsmanager.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
-import com.miguelpazatto.leadsmanager.entities.Option;
+import com.miguelpazatto.leadsmanager.dto.OptionUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
@@ -17,13 +17,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -202,6 +199,71 @@ class OptionResourceTest {
     }
 
     @Test
-    void update() {
+    @DisplayName("Deve retornar Status 200 (OK) quando alterar uma Option")
+    void update_WhenIdDoesExist_ReturnOk() throws Exception {
+        // given
+        Long optionId = 1L;
+        OptionUpdateDTO optionUpdateDTO = new OptionUpdateDTO(
+                "Enunciado alterado",
+                8
+        );
+        OptionResponseDTO optionResponseDTO = new OptionResponseDTO(
+                1L,
+                "Enunciado alterado",
+                8
+        );
+        given(optionService.update(optionId, optionUpdateDTO)).willReturn(optionResponseDTO);
+
+        // when - then
+        mockMvc.perform(put("/options/{id}", optionId)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(optionUpdateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(optionResponseDTO.id()))
+                .andExpect(jsonPath("$.description").value(optionUpdateDTO.description()));
+
+        verify(optionService, times(1)).update(optionId, optionUpdateDTO);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 404 (Not Found) quando não houver ID correspondente para alterar")
+    void update_WhenIdDoesNotExist_ReturnNotFound() throws Exception {
+        // given
+        Long optionId = 999L;
+        OptionUpdateDTO optionUpdateDTO = new OptionUpdateDTO(
+                "Enunciado alterado",
+                8
+        );
+        willThrow(new ResourceNotFoundException("Resource not found"))
+                .given(optionService).update(optionId, optionUpdateDTO);
+
+        // when - then
+        mockMvc.perform(put("/options/{id}", optionId)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(optionUpdateDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found"));
+
+        verify(optionService, times(1)).update(optionId, optionUpdateDTO);
+    }
+
+    @Test
+    @DisplayName("Deve retornar Status 400 (Bad Request) quando entrada de dados for inválida para alterar uma Option")
+    void update_WhenDataIsInvalid_ReturnBadRequest() throws Exception {
+        Long id = 1L;
+        OptionUpdateDTO optionUpdateDTO = new OptionUpdateDTO(
+                "  ",
+                8
+        );
+
+        mockMvc.perform(put("/options/{id}", id)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(optionUpdateDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(optionService, never()).update(id, optionUpdateDTO);
     }
 }
