@@ -22,8 +22,7 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OptionResource.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -144,6 +143,7 @@ class OptionResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newOption)))
                 .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/options/1"))
                 .andExpect(jsonPath("$.id").value(insertedOption.id()))
                 .andExpect(jsonPath("$.description").value(insertedOption.description()));
 
