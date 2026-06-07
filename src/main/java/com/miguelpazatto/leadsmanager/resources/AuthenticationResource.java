@@ -2,6 +2,11 @@ package com.miguelpazatto.leadsmanager.resources;
 
 import java.net.URI;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +30,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/auth")
+@Tag(name = "Autenticação", description = "Endpoint para gerar Token JWT de acesso")
 public class AuthenticationResource {
 
 	@Autowired
@@ -40,6 +46,12 @@ public class AuthenticationResource {
 	private AuthorizationService authorizationService;
 	
 	@PostMapping("/login")
+	@Operation(summary = "Realiza o login", description = "Use as credenciais de visitante para testar a API.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Login realizado com sucesso (Token JWT devolvido no corpo da resposta)"),
+			@ApiResponse(responseCode = "400", description = "Erro de validação (Campos ausentes ou mal formatados)"),
+			@ApiResponse(responseCode = "403", description = "Credenciais inválidas (E-mail ou senha incorretos)")
+	})
 	public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
 		var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
 		var auth = authenticationManager.authenticate(usernamePassword);
@@ -48,7 +60,8 @@ public class AuthenticationResource {
 		
 		return ResponseEntity.ok(new TokenDTO(token));
 	}
-	
+
+	@Hidden
 	@PostMapping("/register")
 	public ResponseEntity register(@RequestBody @Valid RegisterDTO data, UriComponentsBuilder uriBuilder) {
 		if (repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();

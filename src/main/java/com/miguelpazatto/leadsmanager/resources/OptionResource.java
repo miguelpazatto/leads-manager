@@ -6,6 +6,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping(value = "/options")
 @Tag(name = "Options", description = "Endpoints para gerenciamento das Opções (Alternativas) das questões")
+@SecurityRequirement(name = "bearer-key")
 public class OptionResource {
 
 	@Autowired
@@ -67,7 +69,7 @@ public class OptionResource {
 	}
 
 	@DeleteMapping(value = "/{id}")
-	@Operation(summary = "Deleta uma opção", description = "Deleta uma opção no banco de dados vinculada a uma questão")
+	@Operation(summary = "Deleta uma Opção", description = "Deleta uma opção no banco de dados vinculada a uma questão")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Opção deletada com sucesso"),
 			@ApiResponse(responseCode = "404", description = "ID da Opção não foi encontrado"),
