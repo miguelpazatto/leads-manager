@@ -2,6 +2,7 @@ package com.miguelpazatto.leadsmanager.resources.exceptions;
 
 import java.time.Instant;
 
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -53,9 +54,14 @@ public class ResourceExceptionHandler {
 		}
 		
 		return ResponseEntity.status(status).body(ve);
-		
-		
 	}
-	
-	
+
+	@ExceptionHandler(ConflictException.class)
+	public ResponseEntity<StandardError> conflict(ConflictException e, HttpServletRequest request) {
+		String error = "Erro por conflito com dados";
+		HttpStatus status = HttpStatus.CONFLICT;
+		ValidationError ve = new ValidationError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(ve);
+	}
+
 }

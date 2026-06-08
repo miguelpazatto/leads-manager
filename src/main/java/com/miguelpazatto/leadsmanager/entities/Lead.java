@@ -8,19 +8,7 @@ import com.miguelpazatto.leadsmanager.entities.enums.LeadClassification;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -36,7 +24,10 @@ public class Lead implements Serializable {
 	@EqualsAndHashCode.Include
 	private Long id;
 	private String name;
+
+	@Column(unique = true)
 	private String email;
+
 	private String phone;
 	private Integer totalScore;
 	

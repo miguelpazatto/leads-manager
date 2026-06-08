@@ -178,6 +178,7 @@ class LeadServiceTest {
         Answer answer = new Answer(option, savedLead);
         savedLead.setOptions(List.of(answer));
 
+        given(leadRepository.existsByEmail(data.email())).willReturn(false);
         given(salesmanService.assignSalesman()).willReturn(salesman);
         given(optionRepository.findById(option.getId())).willReturn(Optional.of(option));
         given(leadRepository.save(any(Lead.class))).willReturn(savedLead);
@@ -231,6 +232,7 @@ class LeadServiceTest {
 
         savedLead.setOptions(answers);
 
+        given(leadRepository.existsByEmail(data.email())).willReturn(false);
         given(salesmanService.assignSalesman()).willReturn(salesman);
         given(optionRepository.findById(anyLong())).willReturn(Optional.of(o1), Optional.of(o2));
         given(leadRepository.save(any(Lead.class))).willReturn(savedLead);
@@ -266,6 +268,7 @@ class LeadServiceTest {
                 options
         );
 
+        given(leadRepository.existsByEmail(data.email())).willReturn(false);
         given(salesmanService.assignSalesman()).willReturn(salesman);
         given(optionRepository.findById(invalidId)).willReturn(Optional.empty());
 

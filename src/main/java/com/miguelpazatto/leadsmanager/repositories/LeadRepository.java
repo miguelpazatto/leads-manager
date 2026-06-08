@@ -6,4 +6,6 @@ import com.miguelpazatto.leadsmanager.entities.Lead;
 
 public interface LeadRepository extends JpaRepository<Lead, Long> {
 
+    public boolean existsByEmail(String email);
+
 }

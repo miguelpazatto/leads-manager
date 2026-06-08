@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,10 @@ public class LeadService {
 	}
 	
 	public LeadSalesDTO insert(LeadRequestDTO data) {
+		if (repository.existsByEmail(data.email())) {
+			throw new ConflictException("Email enviado já existente");
+		}
+
 		Salesman salesman = salesmanService.assignSalesman();
 		Lead obj = new Lead(null, data.name(), data.email(), data.phone(), salesman);
 		

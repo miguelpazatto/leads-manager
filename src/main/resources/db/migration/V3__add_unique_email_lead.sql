@@ -1,0 +1,1 @@
+ALTER TABLE tb_lead ADD CONSTRAINT uk_lead_email UNIQUE (email);
