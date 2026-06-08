@@ -1,77 +1,222 @@
 # Leads Manager API 🚀
+![Java](https://img.shields.io/badge/Java-21-orange)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.5-brightgreen)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-blue)
+![Railway](https://img.shields.io/badge/Deploy-Railway-purple)
 
-Uma API RESTful desenvolvida para otimizar e escalar a produtividade de times de vendas. Criada com o propósito de atender startups, o sistema transforma simples formulários web em canais de comunicação inteligentes, qualificando potenciais clientes de forma totalmente automatizada.
+Uma API RESTful desenvolvida para otimizar a produtividade de times de vendas. O sistema transforma formulários web em canais de qualificação inteligentes, classificando leads automaticamente com base em um motor de pontuação dinâmico.
+
+---
 
 ## 🎯 O Problema que Resolve
-Times de vendas perdem muito tempo analisando contatos frios. O Leads Manager recebe os dados do formulário do site e aplica uma inteligência de pontuação instantânea, entregando para o vendedor uma lista priorizada e dicas de abordagem personalizadas.
 
-## 🧠 Regra de Negócio: Motor de Classificação (Scoring)
-O grande diferencial da API é o seu motor de qualificação dinâmico:
-1. **Pesos e Respostas (`Answers`):** Cada opção de um formulário tem um peso (`weight`). Quando um lead é submetido, o sistema gera uma lista de `Answers` (entidade associativa) que registra e "congela" o peso daquela opção no momento exato da criação.
-2. **Cálculo (`totalScore`):** Um método interno utiliza Lambdas/Streams para somar todos os pesos e calcular o Score Total do Lead.
-3. **Classificação Enum-Driven:** O `totalScore` é repassado para o Enum `LeadClassification`. É o Enum que detém a responsabilidade de avaliar a margem de pontos e retornar a classificação correta.
-4. **Lógica de Temperatura:** Baseado na dor do cliente, **quanto menor a pontuação** (indicando baixa performance do lead ao conciliar CPF e CNPJ), **mais "Quente" (HOT) é o lead**.
-5. **Mensageria:** O próprio Enum encapsula mensagens customizadas: uma é enviada ao front-end para o usuário, e outra é exibida ao vendedor com uma sugestão de abordagem.
+Times de vendas perdem tempo analisando contatos frios. O Leads Manager recebe os dados do formulário, aplica uma lógica de scoring instantânea e entrega ao vendedor uma lista priorizada com sugestões de abordagem personalizadas.
 
-## 🏗️ Modelagem do Domínio (Core Business)
-Abaixo está o diagrama de classes focando estritamente na regra de negócio e no motor de pontuação.
+---
 
-![Diagrama de Classes do Domínio](doc/uml-diagram.jpg)
+## 🧠 Motor de Classificação (Lead Scoring)
+
+O grande diferencial da API é seu motor de qualificação dinâmico:
+
+1. **Pesos e Respostas (`Answers`):** Cada opção do formulário tem um peso (`weight`). Quando um lead é submetido, o sistema gera uma lista de `Answers` que registra e "congela" o peso de cada opção no momento da criação.
+2. **Cálculo (`totalScore`):** Um método interno usa Streams/Lambdas para somar todos os pesos e calcular o score total do lead.
+3. **Classificação Enum-Driven:** O `totalScore` é repassado ao Enum `LeadClassification`, que avalia a faixa de pontos e retorna a classificação correta.
+4. **Lógica de Temperatura:** Quanto menor a pontuação (indicando maior dor do cliente), mais "Quente" (HOT) é o lead.
+5. **Mensageria Encapsulada:** O Enum encapsula mensagens customizadas — uma para o usuário final e outra com sugestão de abordagem para o vendedor.
+
+---
+
+## 🏗️ Modelagem do Domínio
+
+```
+Question (1) ──── (N) Option
+                        │
+                        └──── Answer (entidade associativa)
+                                    │
+Lead (1) ──────────────────── (N) Answer
+  │
+  └── LeadStatus (enum): NEW | CONTACTED
+  └── LeadClassification (enum): HOT | WARM | COLD
+
+Salesman (1) ──── (N) Lead
+User (1) ──────── (1) Salesman
+```
+
+---
 
 ## 🛠️ Tecnologias Utilizadas
-* **Linguagem:** Java 21
-* **Framework:** Spring Boot 3
-* **Banco de Dados:** PostgreSQL
-* **Migrações:** Flyway
-* **Segurança:** Spring Security + JWT
-* **Deploy/Nuvem:** Railway
 
-## 🌐 Demonstração ao Vivo (Live API)
+| Categoria | Tecnologia |
+|---|---|
+| Linguagem | Java 21 |
+| Framework | Spring Boot 3.3.5 |
+| Segurança | Spring Security + JWT |
+| Banco de Dados | PostgreSQL |
+| Migrações | Flyway |
+| Validação | Bean Validation (Jakarta) |
+| Testes | JUnit 5 + Mockito |
+| Documentação | SpringDoc OpenAPI (Swagger UI) |
+| Deploy | Railway |
+
+---
+
+## 🌐 Demonstração ao Vivo
+
 **URL Base:** `https://leads-manager-production.up.railway.app`
 
-**Credenciais de Visitante (Acesso de Leitura):**
-* **Login:** `visitant`
-* **Senha:** `demo123`
+**Swagger UI:** `https://leads-manager-production.up.railway.app/swagger-ui/index.html`
 
-## 📦 Exemplos de Requisição (Payloads)
+**Credenciais de visitante (acesso de leitura):**
+```
+Login: visitant
+Senha: demo123
+```
 
-### Autenticação (Gerar Token)
-`POST /auth/login`
-json
+---
+
+## 🔐 Autenticação
+
+A API usa autenticação stateless via JWT. Para acessar rotas protegidas:
+
+**1. Gerar token:**
+```http
+POST /auth/login
+Content-Type: application/json
+
 {
   "login": "visitant",
   "password": "demo123"
 }
+```
 
-### 📦 Cadastro de um Novo Lead (Público)
+**2. Usar o token nas requisições:**
+```
+Authorization: Bearer <token>
+```
 
-`POST /leads`
+**No Swagger UI:** clique em **Authorize** (cadeado), cole o token no formato `Bearer <token>` e confirme.
 
-**Regras de Validação (DTO):**
-* **name**: Preenchimento obrigatório.
-* **email**: Formato de e-mail válido.
-* **phone**: Apenas números, mínimo de 11 caracteres.
-* **optionId**: A lista de IDs das opções não pode ser vazia.
+---
 
-**Exemplo de JSON (Request Body):**
-json
+## 📍 Mapeamento de Rotas
+
+### Públicas (sem autenticação)
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/auth/login` | Gera token JWT |
+| POST | `/leads` | Cria novo lead via formulário |
+| GET | `/leads/public/{id}` | Retorna feedback amigável para o usuário final |
+
+### Autenticadas (requerem token JWT)
+| Método | Rota | Role | Descrição |
+|--------|---|---|---|
+| GET    | `/leads` | ADMIN, COLLABORATOR | Lista todos os leads |
+| GET    | `/leads/{id}` | ADMIN, COLLABORATOR | Detalha um lead específico |
+| PUT    | `/leads/{id}/contacted` | ADMIN, COLLABORATOR | Altera status para CONTACTED |
+| POST   | `/salesman` | ADMIN | Cadastra novo vendedor |
+| PUT    | `/salesman/{id}` | ADMIN | Atualiza vendedor |
+| DELETE | `/salesman/{id}` | ADMIN | Remove vendedor |
+| POST   | `/questions` | ADMIN | Cadastra nova questão |
+| POST   | `/options` | ADMIN | Cadastra nova opção |
+| POST   | `/auth/register` | ADMIN | Registra novo usuário |
+
+---
+
+## 📦 Exemplos de Payload
+
+### Criar Lead (POST /leads)
+```json
 {
   "name": "Startup Inovadora Ltda",
   "email": "contato@startup.com",
   "phone": "16999999999",
-  "optionsId": [1, 4, 7] 
+  "optionsId": [1, 4, 7]
 }
+```
 
-### 📍 Mapeamento de Rotas
+**Regras de validação:**
+- `name`: obrigatório
+- `email`: formato válido
+- `phone`: apenas números, mínimo 11 caracteres
+- `optionsId`: lista não pode ser vazia
 
-#### Públicas (PermitAll)
-* **GET /leads/public/{id}**: Retorna a mensagem de feedback amigável do sistema para o usuário final.
+### Login (POST /auth/login)
+```json
+{
+  "login": "visitant",
+  "password": "demo123"
+}
+```
 
-#### Autenticadas (Requerem Token JWT)
-* **GET /leads**: Lista todos os leads captados com classificações e scores.
-* **GET /leads/{id}**: Detalha o histórico e as respostas de um lead específico.
-* **PATCH /leads/{id}/contacted**: Altera o status de um lead de `NEW` para `CONTACTED`.
+---
 
-## 🔜 Próximos Passos
-- [ ] Implementação de Testes Unitários e de Integração (JUnit 5 e Mockito).
-- [ ] Documentação automatizada com Swagger / OpenAPI.
+## ⚙️ Como Rodar Localmente
+
+### Pré-requisitos
+- Java 21
+- PostgreSQL
+- Maven
+
+### Configuração
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/miguelpazatto/leads-manager
+cd leads-manager
+```
+
+2. Crie o banco de dados:
+```sql
+CREATE DATABASE leadsmanager_db;
+```
+
+3. Configure as variáveis de ambiente ou edite `application-dev.properties`:
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/leadsmanager_db
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+api.security.token.secret=sua_chave_secreta
+```
+
+4. Rode o projeto:
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+O Flyway criará as tabelas e inserirá os dados iniciais automaticamente.
+
+5. Acesse o Swagger UI:
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+---
+
+## 🧪 Testes
+
+O projeto conta com cobertura de testes unitários e de integração em todas as camadas:
+
+```bash
+./mvnw test
+```
+
+- **Testes unitários:** Services com Mockito (isolamento de dependências)
+- **Testes de integração:** Controllers com MockMvc + banco H2 em memória
+
+---
+
+## 🏛️ Arquitetura
+
+```
+src/
+├── entities/          # Entidades JPA
+│   └── enums/         # Enums de domínio (LeadStatus, LeadClassification, UserRole)
+├── dto/               # Data Transfer Objects (request e response)
+├── repositories/      # Interfaces JPA Repository
+├── services/          # Regras de negócio
+├── resources/         # Controllers REST
+├── infra/
+│   └── security/      # Configuração Spring Security, JWT Filter, Token Service
+└── resources/
+    └── db/migration/  # Scripts Flyway (V1, V2)
+```
