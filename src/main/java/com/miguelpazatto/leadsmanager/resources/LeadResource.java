@@ -72,7 +72,8 @@ public class LeadResource {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "201", description = "Lead criado com sucesso"),
 			@ApiResponse(responseCode = "400", description = "Erro de validação (dados enviados incorretos)"),
-			@ApiResponse(responseCode = "404", description = "A Opção atrelada ao lead não foi encontrada")
+			@ApiResponse(responseCode = "404", description = "A Opção atrelada ao lead não foi encontrada"),
+			@ApiResponse(responseCode = "409", description = "Já existe um Lead com o email enviado no bando de dados")
 	})
 	public ResponseEntity<LeadSalesDTO> insert(@RequestBody @Valid LeadRequestDTO data) {
 		LeadSalesDTO dto = service.insert(data);
