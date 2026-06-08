@@ -8,18 +8,18 @@ import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
 import com.miguelpazatto.leadsmanager.repositories.*;
 import jakarta.transaction.Transactional;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasItem;
@@ -204,6 +204,33 @@ public class LeadResourceIT {
     }
 
     @Test
+    @DisplayName("Deve retornar Status 409 (Conflict) quando email enviado já existir no bando de dados")
+    void cannotInsertLead_WhenEmailAlreadyExists_ReturnConflict() throws Exception {
+        Salesman salesman = new Salesman();
+        salesman.setName("Salesman Teste");
+        salesman = salesmanRepository.save(salesman);
+
+        Lead savedLead = new Lead(null, "Lead Conflito", "conflito_isolado_123@email.com", "11999999999", salesman);
+        savedLead.setOptions(new ArrayList<>());
+        leadRepository.saveAndFlush(savedLead);
+
+        LeadRequestDTO leadRequestDTO = new LeadRequestDTO(
+                "RequestedLead",
+                "conflito_isolado_123@email.com",
+                "11977777777",
+                List.of(1L)
+        );
+
+        mockMvc.perform(post("/leads")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(leadRequestDTO)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Erro por conflito com dados"))
+                .andExpect(jsonPath("$.message").value("Email enviado já existente"));
+    }
+
+    @Test
     @DisplayName("Deve retornar Status 204 (No Content) quando deletar um Lead por um ID existente")
     void delete_WhenIdExists_ReturnsNoContent() throws Exception {
 
@@ -309,8 +336,7 @@ public class LeadResourceIT {
                 .andExpect(jsonPath("$.error").value("Resource not found"));
     }
 
-
-    private static @NonNull Lead getLead() {
+    private Lead getLead() {
         Salesman salesman = new Salesman();
         salesman.setName("Salesman");
 
@@ -318,15 +344,16 @@ public class LeadResourceIT {
 
         Question question = new Question(null, "Qual seu faturamento?");
 
-        Option o1 = new Option(null, "Até 10K", 25, question);
-        Option o2 = new Option(null, "Até 50K", 4, question);
+        Option o1 = new Option(null, "Até 10k", 25, question);
+        Option o2 = new Option(null, "Até 50k", 4, question);
 
         Answer a1 = new Answer(o1, lead);
         Answer a2 = new Answer(o2, lead);
-        List<Answer> answers = List.of(a1, a2);
+
+        List<Answer> answers = new ArrayList<>(List.of(a1, a2));
 
         lead.setOptions(answers);
+
         return lead;
     }
-
 }

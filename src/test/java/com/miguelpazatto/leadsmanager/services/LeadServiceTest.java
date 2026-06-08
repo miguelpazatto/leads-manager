@@ -8,10 +8,10 @@ import com.miguelpazatto.leadsmanager.entities.*;
 import com.miguelpazatto.leadsmanager.entities.enums.LeadStatus;
 import com.miguelpazatto.leadsmanager.repositories.LeadRepository;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -281,6 +281,30 @@ class LeadServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar ConflictException quando email do Lead já existir no banco de dados")
+    void cannotInsertLead_WhenEmailAlreadyExists_ThrowsConflictException() {
+        // given
+        LeadRequestDTO newLead = new LeadRequestDTO(
+                "Lead",
+                "lead@email.com",
+                "16999999999",
+                List.of()
+        );
+
+        given(leadRepository.existsByEmail(newLead.email())).willReturn(true);
+
+        // when / then
+        assertThatThrownBy(() -> leadService.insert(newLead))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("Email enviado já existente");
+
+        verify(leadRepository, times(1)).existsByEmail(newLead.email());
+        verify(optionRepository, never()).findById(anyLong());
+        verify(leadRepository, never()).save(any(Lead.class));
+
+    }
+
+    @Test
     @DisplayName("Deve retornar No Content e deletar Lead quando houver ID correspondente")
     void deleteLead_WhenLeadIdExists_ReturnNoContent() {
         // given
@@ -466,7 +490,7 @@ class LeadServiceTest {
 
     }
 
-    private static @NonNull Lead getLead() {
+    private static Lead getLead() {
         Salesman salesman = new Salesman();
         salesman.setId(1L);
         salesman.setName("Salesman");

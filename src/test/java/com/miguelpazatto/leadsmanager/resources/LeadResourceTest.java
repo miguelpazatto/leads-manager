@@ -10,15 +10,14 @@ import com.miguelpazatto.leadsmanager.infra.security.TokenService;
 import com.miguelpazatto.leadsmanager.repositories.UserRepository;
 import com.miguelpazatto.leadsmanager.services.LeadService;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -40,13 +39,13 @@ class LeadResourceTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @MockitoBean
+    @MockBean
     private LeadService leadService;
 
-    @MockitoBean
+    @MockBean
     private TokenService tokenService;
 
-    @MockitoBean
+    @MockBean
     private UserRepository userRepository;
 
     @Test
@@ -340,7 +339,7 @@ class LeadResourceTest {
                 .andExpect(status().isNotFound());
     }
 
-    private static @NonNull Lead getLead() {
+    private static Lead getLead() {
         Salesman salesman = new Salesman();
         salesman.setId(1L);
         salesman.setName("Salesman");

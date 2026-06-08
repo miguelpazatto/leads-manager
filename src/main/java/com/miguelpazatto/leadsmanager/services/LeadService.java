@@ -53,12 +53,12 @@ public class LeadService {
 	}
 	
 	public LeadSalesDTO insert(LeadRequestDTO data) {
-		if (repository.existsByEmail(data.email())) {
+		if (repository.existsByEmail(data.email().toLowerCase())) {
 			throw new ConflictException("Email enviado já existente");
 		}
 
 		Salesman salesman = salesmanService.assignSalesman();
-		Lead obj = new Lead(null, data.name(), data.email(), data.phone(), salesman);
+		Lead obj = new Lead(null, data.name(), data.email().toLowerCase(), data.phone(), salesman);
 		
 		List<Answer> answers = new ArrayList<>();
 		
