@@ -1,8 +1,9 @@
 # Leads Manager API 🚀
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.5-brightgreen)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-blue)
-![Railway](https://img.shields.io/badge/Deploy-Railway-purple)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-(Neon)-blue)
+![Docker](https://img.shields.io/badge/Container-Docker-2496ED)
+![Render](https://img.shields.io/badge/Deploy-Render-black)
 
 Uma API RESTful desenvolvida para otimizar a produtividade de times de vendas. O sistema transforma formulários web em canais de qualificação inteligentes, classificando leads automaticamente com base em um motor de pontuação dinâmico.
 
@@ -28,7 +29,7 @@ O grande diferencial da API é seu motor de qualificação dinâmico:
 
 ## 🏗️ Modelagem do Domínio
 
-```
+```text
 Question (1) ──── (N) Option
                         │
                         └──── Answer (entidade associativa)
@@ -51,23 +52,27 @@ User (1) ──────── (1) Salesman
 | Linguagem | Java 21 |
 | Framework | Spring Boot 3.3.5 |
 | Segurança | Spring Security + JWT |
-| Banco de Dados | PostgreSQL |
+| Banco de Dados | PostgreSQL (Hospedado no Neon) |
 | Migrações | Flyway |
 | Validação | Bean Validation (Jakarta) |
 | Testes | JUnit 5 + Mockito |
 | Documentação | SpringDoc OpenAPI (Swagger UI) |
-| Deploy | Railway |
+| Tratamento de Erros | ControllerAdvice (JSONs padronizados 400/409) |
+| Deploy | Render (Conteinerizado com Docker) |
 
 ---
 
 ## 🌐 Demonstração ao Vivo
 
-**URL Base:** `https://leads-manager-production.up.railway.app`
+**URL Base:** `https://leads-manager-smik.onrender.com`
 
-**Swagger UI:** `https://leads-manager-production.up.railway.app/swagger-ui/index.html`
+**Swagger UI:** `https://leads-manager-smik.onrender.com/swagger-ui/index.html`
+
+> **⚠️ Nota sobre o ambiente de demonstração:**
+> Esta API está hospedada em um serviço de nuvem gratuito (Render). Caso o servidor esteja inativo há algum tempo, **a primeira requisição pode levar cerca de 50 segundos** para "acordar" o contêiner Docker. As requisições seguintes responderão instantaneamente.
 
 **Credenciais de visitante (acesso de leitura):**
-```
+```text
 Login: visitant
 Senha: demo123
 ```
@@ -90,7 +95,7 @@ Content-Type: application/json
 ```
 
 **2. Usar o token nas requisições:**
-```
+```text
 Authorization: Bearer <token>
 ```
 
@@ -161,7 +166,7 @@ Authorization: Bearer <token>
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/miguelpazatto/leads-manager
+git clone [https://github.com/miguelpazatto/leads-manager](https://github.com/miguelpazatto/leads-manager)
 cd leads-manager
 ```
 
@@ -186,7 +191,7 @@ api.security.token.secret=sua_chave_secreta
 O Flyway criará as tabelas e inserirá os dados iniciais automaticamente.
 
 5. Acesse o Swagger UI:
-```
+```text
 http://localhost:8080/swagger-ui/index.html
 ```
 
@@ -207,7 +212,7 @@ O projeto conta com cobertura de testes unitários e de integração em todas as
 
 ## 🏛️ Arquitetura
 
-```
+```text
 src/
 ├── entities/          # Entidades JPA
 │   └── enums/         # Enums de domínio (LeadStatus, LeadClassification, UserRole)
