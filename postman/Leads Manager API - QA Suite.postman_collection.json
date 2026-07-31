@@ -1,0 +1,3944 @@
+{
+  "info": {
+    "_postman_id": "35dea497-8e83-47af-887b-a660dcae1459",
+    "name": "Leads Manager API - QA Suite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53928264",
+    "_collection_link": "https://go.postman.co/collection/53928264-35dea497-8e83-47af-887b-a660dcae1459?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00. Autenticação",
+      "item": [
+        {
+          "name": "01. Cenários negativos",
+          "item": [
+            {
+              "name": "Tentar Cadastrar Usuário - Dados inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code is 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application;/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Resposta tem propriedades esperadas\", function() {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path', 'errors');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades tem dados válidos e esperados\", function() {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(400);\r",
+                      "    pm.expect(resposta.path).to.equal(\"/auth/register\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"O array Errors contém as propriedades esperadas\", function() {\r",
+                      "    pm.expect(resposta.errors).to.be.an('array').and.not.empty;\r",
+                      "    pm.expect(resposta.errors.length).to.equal(2);\r",
+                      "\r",
+                      "    var camposComErro = resposta.errors.map(function(erro) { return erro.fieldName; });\r",
+                      "    pm.expect(camposComErro).to.include.members(['login', 'role']);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"\",\r\n  \"password\": \"senha123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Cadastrar Usuário - Existente (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"adminlm\",\r\n  \"password\": \"senha123\",\r\n  \"role\": \"ADMIN\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Cadastro - Role Inexistente (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"novo.vendedor\",\r\n  \"password\": \"senha123\",\r\n  \"role\": \"SUPER_ADMIN_MASTER\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Cadastrar Usuário - Sem Permissão (403)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {\r",
+                      "    pm.response.to.have.status(403);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"novo_vendedor_{{$timestamp}}\",\r\n  \"password\": \"senha123\",\r\n  \"role\": \"COLLABORATOR\",\r\n  \"name\": \"vendedor\",\r\n  \"email\": \"novo_vendedor_{{$timestamp}}@email.com\",\r\n  \"phone\": \"11999999988\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Login - Dados inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code is 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application;/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Resposta tem propriedades esperadas\", function() {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path', 'errors');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades tem dados válidos e esperados\", function() {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(400);\r",
+                      "    pm.expect(resposta.path).to.equal(\"/auth/login\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"O array Errors contém as propriedades esperadas\", function() {\r",
+                      "    pm.expect(resposta.errors).to.be.an('array').and.not.empty;\r",
+                      "    pm.expect(resposta.errors.length).to.equal(2);\r",
+                      "\r",
+                      "    var camposComErro = resposta.errors.map(function(erro) { return erro.fieldName; });\r",
+                      "    pm.expect(camposComErro).to.include.members(['login', 'password']);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"\",\r\n  \"password\": \"  \"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Login - Usuário Inexistente (403)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {\r",
+                      "    pm.response.to.have.status(403);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"login_que_nao_existe\",\r\n  \"password\": \"senha123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Login - Senha Incorreta (403)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 403 Forbidden (Senha Incorreta)\", function () {\r",
+                      "    pm.response.to.have.status(403);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"login\": \"visitant\",\r\n  \"password\": \"senha_incorreta\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar Novo Usuário / Vendedor (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta possui a estrutura correta de credenciais\", function () {\r",
+                  "    pm.expect(resposta).to.have.property('id');\r",
+                  "    pm.expect(resposta).to.have.property('userId');\r",
+                  "    pm.expect(resposta).to.have.property('login');\r",
+                  "    pm.expect(resposta).to.have.property('role');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Tipos e regras de negócio estão corretos\", function () {\r",
+                  "    pm.expect(resposta.id).to.satisfy(val => typeof val === 'number' || val === null);\r",
+                  "    pm.expect(resposta.userId).to.be.a('number');\r",
+                  "    pm.expect(resposta.login).to.be.a('string').and.not.empty;\r",
+                  "    pm.expect(resposta.role).to.be.a('string');\r",
+                  "});\r",
+                  "\r",
+                  "if (resposta.role === \"COLLABORATOR\" && resposta.id) {\r",
+                  "    pm.environment.set(\"salesmanId\", resposta.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"usuario_{{$randomInt}}\",\r\n  \"password\": \"senha123\",\r\n  \"role\": \"COLLABORATOR\",\r\n  \"name\": \"vendedor\",\r\n  \"email\": \"teste_{{$timestamp}}@email.com\",\r\n  \"phone\": \"11999999999\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Gerar Token - Login Admin (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Login realizado com sucesso\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem propriedades esperadas\", function() {\r",
+                  "    pm.expect(resposta).to.have.property('token');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token é uma string\", function() {\r",
+                  "    pm.expect(resposta.token).to.be.a('string');\r",
+                  "    pm.environment.set(\"tokenAdmin\", resposta.token);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"adminlm\",\r\n  \"password\": \"08mi0305\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Gerar Token - Login Visitante (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login realizado com sucesso\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta contém a propriedade 'token'\", function() {\r",
+                  "    pm.expect(resposta).to.have.property('token');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"O token é uma string válida e não está vazia\", function() {\r",
+                  "    pm.expect(resposta.token).to.be.a('string').and.not.empty;\r",
+                  "    pm.environment.set(\"token\", resposta.token); \r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"visitant\",\r\n  \"password\": \"demo123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01. Smoke Tests",
+      "item": [
+        {
+          "name": "Criar Novo Lead - Dados Válidos (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;",
+                  "try {",
+                  "    resposta = pm.response.json();",
+                  "} catch (e) {",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type é application/json\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\");",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Resposta contém todas as propriedades esperadas\", function() {",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'name', 'email', 'phone', 'leadStatus', 'totalScore', 'title', 'message', 'assignedTo', 'answers');",
+                  "});",
+                  "",
+                  "pm.test(\"Tipos de dados das propriedades enviadas pelo lead estão corretos\", function() {",
+                  "    pm.expect(resposta.id).to.be.a('number');",
+                  "    pm.expect(resposta.name).to.be.a('string');",
+                  "    pm.expect(resposta.email).to.be.a('string').and.include('@');",
+                  "    pm.expect(resposta.phone).to.be.a('string').and.match(/^\\d{11}$/);",
+                  "    pm.expect(resposta.leadStatus).to.equal(\"NEW\");",
+                  "    pm.expect(resposta.totalScore).to.be.a('number');",
+                  "    pm.expect(resposta.title).to.be.a('string');",
+                  "    pm.expect(resposta.message).to.be.a('string');",
+                  "    pm.expect(resposta.assignedTo).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"O array de 'answers' é válido e seus itens possuem a estrutura adequada\", function() {",
+                  "    pm.expect(resposta.answers).to.be.an('array').and.not.empty;",
+                  "",
+                  "    resposta.answers.forEach(function(ans, index) {",
+                  "        pm.expect(ans).to.have.all.keys('quetionStatement', 'optionStatement');",
+                  "        pm.expect(ans.quetionStatement, `A questão no índice ${index} deve ser uma string`).to.be.a('string').and.not.empty;",
+                  "        pm.expect(ans.optionStatement, `A opção no índice ${index} deve ser uma string`).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Startup Ltda\",\r\n  \"email\": \"teste_{{$timestamp}}@gmail.com\",\r\n  \"phone\": \"16999999888\",\r\n  \"optionsId\": [3, 4, 7]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leads"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Todos os Leads (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta = pm.response.json();",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type é application/json\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\");",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Resposta é um array\", function() {",
+                  "    pm.expect(resposta).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Array contém as propriedades adequadas\", function() {",
+                  "    if (resposta.length > 0) {",
+                  "        resposta.forEach(function(lead, index) {",
+                  "            pm.expect(lead, `O item no índice ${index} está com chaves inválidas`).to.have.all.keys('id', 'name', 'email', 'phone', 'leadStatus', 'totalScore', 'title', 'message', 'assignedTo', 'answers');",
+                  "",
+                  "            pm.expect(lead.id, `O Id no índice ${index} deve ser um número`).to.be.a('number');",
+                  "            pm.expect(lead.name, `O nome no índice ${index} deve ser uma string`).to.be.a('string');",
+                  "            pm.expect(lead.email, `O email no índice ${index} deve ser uma string`).to.be.a('string').and.include('@');",
+                  "            pm.expect(lead.phone, `O telefone no índice ${index} deve ser uma string`).to.be.a('string').and.match(/^\\d{11}$/);",
+                  "",
+                  "            pm.expect(lead.leadStatus, `O leadStatus no índice ${index} deve ser uma string pertence ao enum LeadStatus`).to.be.oneOf(['NEW', 'CONTACTED']);",
+                  "",
+                  "            pm.expect(lead.totalScore, `O totalScore no índice ${index} deve ser um número`).to.be.a('number');",
+                  "",
+                  "            pm.expect(lead.title, `O title no índice ${index} deve ser uma string pertence ao enum LeadTitle`).to.be.oneOf(['HOT', 'WARM', 'COLD']);",
+                  "            pm.expect(lead.message, `O message no índice ${index} deve ser uma string`).to.be.a('string');",
+                  "",
+                  "            pm.expect(lead.assignedTo, `O assignedTo no índice ${index} deve ser uma string`).to.be.a('string');",
+                  "",
+                  "            pm.expect(lead.answers, `Answers no índice ${index} deve ser um array`).to.be.an('array');",
+                  "            pm.expect(lead.answers, `Answers no índice ${index} deve ser um array preenchido`).to.be.an('array').and.not.empty;",
+                  "            lead.answers.forEach(function(ans, ansIndex) {",
+                  "                    pm.expect(ans, `A resposta ${ansIndex} do lead ${index} está com chaves inválidas`).to.have.all.keys('quetionStatement', 'optionStatement');",
+                  "                    pm.expect(ans.quetionStatement, `O enunciado da pergunta ${ansIndex} deve ser string`).to.be.a('string');",
+                  "                    pm.expect(ans.optionStatement, `A opção ${ansIndex} deve ser string`).to.be.a('string');",
+                  "                });",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leads"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. Salesman",
+      "item": [
+        {
+          "name": "01. Cenários negativos",
+          "item": [
+            {
+              "name": "Buscar Vendedor por ID - Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Resposta tem todas as propriedades esperadas\", function() {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades tem valores válidos e adequados\", function () {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(404);\r",
+                      "    pm.expect(resposta.error).to.equal(\"Resource not found\");\r",
+                      "    pm.expect(resposta.message).to.include(\"9999\");\r",
+                      "    pm.expect(resposta.path).to.include(\"/salesman/\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salesman/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salesman",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Vendedor - Vendedor inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code é 404 Not Found para PUT em ID inexistente\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato de Erro: A resposta possui todas as propriedades esperadas\", function () {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades do erro 404 estão corretas\", function () {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(404);\r",
+                      "    pm.expect(resposta.error).to.equal(\"Resource not found\");\r",
+                      "    pm.expect(resposta.message).to.include(\"9999\"); \r",
+                      "    pm.expect(resposta.path).to.include(\"/salesman/\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Visitante Demo Alterado\",\r\n    \"email\": \"visitantalterado@demo.com\",\r\n    \"phone\": \"11999998888\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/salesman/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salesman",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remover Vendedor - ID Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code é 404 Not Found para DELETE em ID inexistente\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato de Erro: A resposta possui todas as propriedades esperadas\", function () {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades do erro 404 para exclusão estão corretas\", function () {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(404);\r",
+                      "    pm.expect(resposta.error).to.equal(\"Resource not found\");\r",
+                      "    pm.expect(resposta.message).to.include(\"9999\");\r",
+                      "    pm.expect(resposta.path).to.include(\"/salesman/\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salesman/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salesman",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Vendedor - Dados Inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code é 400 Bad Request\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato de Erro de Validação: A resposta possui todas as chaves principais\", function () {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path', 'errors');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades gerais do erro estão corretas\", function () {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(400);\r",
+                      "    pm.expect(resposta.error).to.equal(\"Erro de validação na entrada de dados\");\r",
+                      "    pm.expect(resposta.path).to.include(\"/salesman/\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"O array de erros detalhados por campo foi populado corretamente\", function () {\r",
+                      "    pm.expect(resposta.errors).to.be.an('array').and.not.empty;\r",
+                      "    pm.expect(resposta.errors.length).to.equal(3); \r",
+                      "    \r",
+                      "    var camposComErro = resposta.errors.map(function(err) { return err.fieldName; });\r",
+                      "    pm.expect(camposComErro).to.include.members(['email', 'name', 'phone']);\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"visitantalteradodemo\",\r\n    \"phone\": \"118\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/salesman/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salesman",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remover Vendedor por ID - Violação de Integridade dos Dados (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;\r",
+                      "try {\r",
+                      "    resposta = pm.response.json();\r",
+                      "} catch (e) {\r",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                      "}\r",
+                      "\r",
+                      "pm.test(\"Status code é 400 Bad Request por violação de integridade\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é application/json\", function () {\r",
+                      "    pm.response.to.have.header(\"Content-Type\");\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato de Erro: A resposta possui todas as propriedades esperadas\", function () {\r",
+                      "    pm.expect(resposta).to.have.all.keys('timestamp', 'status', 'error', 'message', 'path');\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Propriedades do erro de violação de FK estão corretas\", function () {\r",
+                      "    pm.expect(resposta.timestamp).to.be.a('string');\r",
+                      "    pm.expect(resposta.status).to.equal(400);\r",
+                      "    pm.expect(resposta.error).to.equal(\"Database error\");\r",
+                      "    pm.expect(resposta.message).to.include(\"violates foreign key constraint\");\r",
+                      "    pm.expect(resposta.path).to.include(\"/salesman/1\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salesman/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salesman",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Deletar Vendedor Sem Token (401)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code é 403 Unauthorized para requisição sem token\", function () {",
+                      "    pm.response.to.have.status(403);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salesman/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salesman",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "[SETUP] Criar Vendedor Cobaia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta possui a estrutura correta de credenciais\", function () {\r",
+                  "    pm.expect(resposta).to.have.property('id');\r",
+                  "    pm.expect(resposta).to.have.property('userId');\r",
+                  "    pm.expect(resposta).to.have.property('login');\r",
+                  "    pm.expect(resposta).to.have.property('role');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Tipos e regras de negócio estão corretos\", function () {\r",
+                  "    pm.expect(resposta.id).to.satisfy(val => typeof val === 'number' || val === null);\r",
+                  "    pm.expect(resposta.userId).to.be.a('number');\r",
+                  "    pm.expect(resposta.login).to.be.a('string').and.not.empty;\r",
+                  "    pm.expect(resposta.role).to.be.a('string');\r",
+                  "});\r",
+                  "\r",
+                  "if (resposta.role === \"COLLABORATOR\" && resposta.id) {\r",
+                  "    pm.environment.set(\"salesmanId\", resposta.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();\r",
+                  "pm.environment.set(\"emailSetup\", \"teste_\" + timestamp + \"@email.com\");\r",
+                  "pm.environment.set(\"loginSetup\", \"usuario_\" + timestamp);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"{{loginSetup}}\",\r\n  \"password\": \"senha123\",\r\n  \"role\": \"COLLABORATOR\",\r\n  \"name\": \"vendedor\",\r\n  \"email\": \"{{emailSetup}}\",\r\n  \"phone\": \"11999999999\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Alterar Vendedor - Mudança de Dados Pessoais (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;",
+                  "try {",
+                  "    resposta = pm.response.json();",
+                  "} catch (e) {",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type é aplicativo/json\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\");",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Propriedades da resposta são como esperado\", function () {",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'name', 'email', 'phone', 'leads');",
+                  "});",
+                  "",
+                  "pm.test(\"Propriedades alteradas tem dados válidos\", function () {",
+                  "    var idEsperado = Number(pm.environment.get(\"salesmanId\"));",
+                  "    pm.expect(resposta.id, \"O Id do Vendedor não deve ser alterado\").to.equal(idEsperado);",
+                  "",
+                  "    var nomeEsperado = pm.environment.get(\"nomeEsperado\");",
+                  "    var emailEsperado = pm.environment.get(\"emailEsperado\");",
+                  "    var telefoneEsperado = pm.environment.get(\"telefoneEsperado\");",
+                  "",
+                  "    pm.expect(nomeEsperado, \"A variável de ambiente 'nomeEsperado' não foi encontrada\").to.be.a('string');",
+                  "    pm.expect(emailEsperado, \"A variável de ambiente 'emailEsperado' não foi encontrada\").to.be.a('string').and.include('@');",
+                  "    pm.expect(telefoneEsperado, \"A variável de ambiente 'telefoneEsperado' não foi encontrada\").to.be.a('string').and.match(/^\\d{11}$/);",
+                  "",
+                  "    pm.expect(resposta.name, \"O nome retornado deve ser o atualizado\").to.equal(nomeEsperado);",
+                  "    pm.expect(resposta.email, \"O e-mail retornado deve ser o atualizado\").to.equal(emailEsperado);",
+                  "    pm.expect(resposta.phone, \"O telefone retornado deve ser o atualizado\").to.equal(telefoneEsperado);",
+                  "});",
+                  "",
+                  "pm.test(\"Propriedades imutáveis continuam sem alteração\", function() {",
+                  "    pm.expect(resposta.leads).to.be.an('array');",
+                  "",
+                  "    if (resposta.leads.length > 0) {",
+                  "        resposta.leads.forEach(function(lead, leadIndex) {",
+                  "            pm.expect(lead).to.have.all.keys('id', 'name');",
+                  "            pm.expect(lead.id, `O Id do Lead no índice ${leadIndex} deve ser um número`).to.be.a('number');\t",
+                  "            pm.expect(lead.name, `O nome do Lead no índice ${leadIndex} deve ser uma string`).to.be.a('string');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();\r",
+                  "\r",
+                  "var novoNome = \"Vendedor Alterado\" + timestamp;\r",
+                  "var novoEmail = \"vendedor_alterado_\" + timestamp + \"@demo.com\";\r",
+                  "var novoTelefone = \"11999\" + Math.floor(100000 + Math.random() * 900000);\r",
+                  "\r",
+                  "pm.environment.set(\"nomeEsperado\", novoNome);\r",
+                  "pm.environment.set(\"emailEsperado\", novoEmail);\r",
+                  "pm.environment.set(\"telefoneEsperado\", novoTelefone);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{nomeEsperado}}\",\r\n  \"email\": \"{{emailEsperado}}\",\r\n  \"phone\": \"{{telefoneEsperado}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/salesman/{{salesmanId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salesman",
+                "{{salesmanId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Vendedor por ID - Alterado (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Contraprova: As alterações persistiram no banco de dados\", function () {\r",
+                  "\r",
+                  "    var nomeEsperado = pm.environment.get(\"nomeEsperado\");\r",
+                  "    var emailEsperado = pm.environment.get(\"emailEsperado\");\r",
+                  "    var telefoneEsperado = pm.environment.get(\"telefoneEsperado\");\r",
+                  "\r",
+                  "    pm.expect(resposta.name, \"O Nome não foi atualizado no banco\").to.equal(nomeEsperado);\r",
+                  "    pm.expect(resposta.email, \"O E-mail não foi atualizado no banco\").to.equal(emailEsperado);\r",
+                  "    pm.expect(resposta.phone, \"O Telefone não foi atualizado no banco\").to.equal(telefoneEsperado);\r",
+                  "    \r",
+                  "    var idEsperado = Number(pm.environment.get(\"salesmanId\"));\r",
+                  "    pm.expect(resposta.id, \"O ID sofreu mutação indevida\").to.equal(idEsperado);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salesman/{{salesmanId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salesman",
+                "{{salesmanId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Todos os Vendedores (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;",
+                  "try {",
+                  "    resposta = pm.response.json();",
+                  "} catch (e) {",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type é application/json\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\");",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Contrato: Vendedores têm propriedades e tipos adequados\", function () {",
+                  "    pm.expect(resposta).to.be.an('array');",
+                  "",
+                  "    if (resposta.length > 0) {",
+                  "        resposta.forEach(function (sal, index) {",
+                  "            pm.expect(sal, `Vendedor no índice ${index} com chaves inválidas`).to.have.all.keys('id', 'name', 'email', 'phone', 'leads');",
+                  "",
+                  "            pm.expect(sal.id, `O Id do vendedor ${index} deve ser um número`).to.be.a('number');",
+                  "            pm.expect(sal.name, `O nome do vendedor ${index} deve ser uma string`).to.be.a('string');",
+                  "            pm.expect(sal.email, `O email do vendedor ${index} deve ser uma string válida`).to.be.a('string').and.include('@');",
+                  "            pm.expect(sal.phone, `O telefone do vendedor ${index} deve ter 11 dígitos`).to.be.a('string').and.match(/^\\d{11}$/);",
+                  "            pm.expect(sal.leads, `O campo leads do vendedor ${index} deve ser um array`).to.be.a('array');",
+                  "",
+                  "            if (sal.leads.length > 0) {",
+                  "                sal.leads.forEach(function (lead, leadIndex) {",
+                  "                    pm.expect(lead, `Lead ${leadIndex} do vendedor ${index} com chaves inválidas`).to.have.all.keys('id', 'name');",
+                  "                    pm.expect(lead.id, `O id do lead ${leadIndex} deve ser um número`).to.be.a('number');",
+                  "                    pm.expect(lead.name, `O nome do lead ${leadIndex} deve ser uma string`).to.be.a('string');",
+                  "                });",
+                  "            }",
+                  "        });",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Integração: O Vendedor recém-alterado está presente na listagem\", function () {",
+                  "    var emailEsperado = pm.environment.get(\"emailEsperado\");",
+                  "",
+                  "    var vendedorEncontrado = resposta.some(function (vendedor) {",
+                  "        return vendedor.email === emailEsperado;",
+                  "    });",
+                  "",
+                  "    pm.expect(vendedorEncontrado, \"O vendedor com e-mail \" + emailEsperado + \" não foi encontrado na listagem\").to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salesman",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salesman"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover Vendedor por ID - Sucesso (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "var idDeletado = pm.environment.get(\"salesmanId\");",
+                  "",
+                  "if (idDeletado) {",
+                  "    var baseUrl = pm.environment.get(\"baseUrl\");",
+                  "    var token = pm.environment.get(\"tokenAdmin\");",
+                  "",
+                  "    pm.sendRequest({",
+                  "        url: baseUrl + \"/salesman/\" + idDeletado,",
+                  "        method: \"GET\",",
+                  "        header: {",
+                  "            'Authorization': 'Bearer ' + token",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        pm.test(\"Contraprova: Registro foi completamente removido (Retornou 404)\", function () {",
+                  "            pm.expect(res.code).to.equal(404);",
+                  "        });",
+                  "    });",
+                  "",
+                  "    pm.environment.unset(\"salesmanId\");",
+                  "    pm.environment.unset(\"emailSetup\");",
+                  "    pm.environment.unset(\"nomeEsperado\");",
+                  "    pm.environment.unset(\"emailEsperado\");",
+                  "    pm.environment.unset(\"telefoneEsperado\");",
+                  "",
+                  "    console.log(\"Teardown completo com contraprova 404! Vendedor apagado e variáveis limpas.\");",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salesman/{{salesmanId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salesman",
+                "{{salesmanId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Questions",
+      "item": [
+        {
+          "name": "01. Cenários Negativos",
+          "item": [
+            {
+              "name": "Buscar Questão por ID - Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});",
+                      "",
+                      "pm.test(\"Body contém os campos esperados\", function () {",
+                      "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                      "    pm.expect(jsonData).to.have.property(\"status\");",
+                      "    pm.expect(jsonData).to.have.property(\"error\");",
+                      "    pm.expect(jsonData).to.have.property(\"message\");",
+                      "    pm.expect(jsonData).to.have.property(\"path\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'status' do body é 404\", function () {",
+                      "    pm.expect(jsonData.status).to.eql(404);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'error' é 'Resource not found'\", function () {",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'message' é 'Resource not found. Id 99999'\", function () {",
+                      "    pm.expect(jsonData.message).to.eql(\"Resource not found. Id 99999\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'path' é '/questions/99999'\", function () {",
+                      "    pm.expect(jsonData.path).to.eql(\"/questions/99999\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'timestamp' existe e não está vazio\", function () {",
+                      "    pm.expect(jsonData.timestamp).to.be.a(\"string\").and.to.not.be.empty;",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/questions/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions",
+                    "99999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Questão - Dados Inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Body contém os campos esperados\", function () {",
+                      "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                      "    pm.expect(jsonData).to.have.property(\"status\");",
+                      "    pm.expect(jsonData).to.have.property(\"error\");",
+                      "    pm.expect(jsonData).to.have.property(\"message\");",
+                      "    pm.expect(jsonData).to.have.property(\"path\");",
+                      "    pm.expect(jsonData).to.have.property(\"errors\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'status' do body é 400\", function () {",
+                      "    pm.expect(jsonData.status).to.eql(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'error' é 'Erro de validação na entrada de dados'\", function () {",
+                      "    pm.expect(jsonData.error).to.eql(\"Erro de validação na entrada de dados\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'path' é '/questions'\", function () {",
+                      "    pm.expect(jsonData.path).to.eql(\"/questions\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'timestamp' existe e não está vazio\", function () {",
+                      "    pm.expect(jsonData.timestamp).to.be.a(\"string\").and.to.not.be.empty;",
+                      "});",
+                      "",
+                      "pm.test(\"Array 'errors' não está vazio\", function () {",
+                      "    pm.expect(jsonData.errors).to.be.an(\"array\").and.to.not.be.empty;",
+                      "});",
+                      "",
+                      "pm.test(\"Array 'errors' contém erro no campo 'statement'\", function () {",
+                      "    const statementError = jsonData.errors.find(e => e.fieldName === \"statement\");",
+                      "    pm.expect(statementError).to.not.be.undefined;",
+                      "    pm.expect(statementError.message).to.eql(\"Enunciado da questão é obrigatório\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"statement\":\"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/questions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remover Questão - ID Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});",
+                      "",
+                      "pm.test(\"Body contém os campos esperados\", function () {",
+                      "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                      "    pm.expect(jsonData).to.have.property(\"status\");",
+                      "    pm.expect(jsonData).to.have.property(\"error\");",
+                      "    pm.expect(jsonData).to.have.property(\"message\");",
+                      "    pm.expect(jsonData).to.have.property(\"path\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'status' do body é 404\", function () {",
+                      "    pm.expect(jsonData.status).to.eql(404);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'error' é 'Resource not found'\", function () {",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'message' é 'Resource not found. Id 999999'\", function () {",
+                      "    pm.expect(jsonData.message).to.eql(\"Resource not found. Id 999999\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'path' é '/questions/999999'\", function () {",
+                      "    pm.expect(jsonData.path).to.eql(\"/questions/999999\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'timestamp' existe e não está vazio\", function () {",
+                      "    pm.expect(jsonData.timestamp).to.be.a(\"string\").and.to.not.be.empty;",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/questions/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions",
+                    "999999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remover Questão - Violação de Integridade dos Dados (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Body contém os campos esperados\", function () {",
+                      "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                      "    pm.expect(jsonData).to.have.property(\"status\");",
+                      "    pm.expect(jsonData).to.have.property(\"error\");",
+                      "    pm.expect(jsonData).to.have.property(\"message\");",
+                      "    pm.expect(jsonData).to.have.property(\"path\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'status' do body é 400\", function () {",
+                      "    pm.expect(jsonData.status).to.eql(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'error' é 'Database error'\", function () {",
+                      "    pm.expect(jsonData.error).to.eql(\"Database error\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'path' é '/questions/1'\", function () {",
+                      "    pm.expect(jsonData.path).to.eql(\"/questions/1\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'message' contém violação de integridade referencial\", function () {",
+                      "    pm.expect(jsonData.message).to.include(\"violates foreign key constraint\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'timestamp' existe e não está vazio\", function () {",
+                      "    pm.expect(jsonData.timestamp).to.be.a(\"string\").and.to.not.be.empty;",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/questions/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Questão - Questão Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});",
+                      "",
+                      "pm.test(\"Body contém os campos esperados\", function () {",
+                      "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                      "    pm.expect(jsonData).to.have.property(\"status\");",
+                      "    pm.expect(jsonData).to.have.property(\"error\");",
+                      "    pm.expect(jsonData).to.have.property(\"message\");",
+                      "    pm.expect(jsonData).to.have.property(\"path\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'status' do body é 404\", function () {",
+                      "    pm.expect(jsonData.status).to.eql(404);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'error' é 'Resource not found'\", function () {",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'message' é 'Resource not found. Id 999999'\", function () {",
+                      "    pm.expect(jsonData.message).to.eql(\"Resource not found. Id 999999\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'path' é '/questions/999999'\", function () {",
+                      "    pm.expect(jsonData.path).to.eql(\"/questions/999999\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'timestamp' existe e não está vazio\", function () {",
+                      "    pm.expect(jsonData.timestamp).to.be.a(\"string\").and.to.not.be.empty;",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"statement\":\"Enunciado alterado da nova questão\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/questions/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions",
+                    "999999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Questão - Dados Inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Body contém os campos esperados\", function () {",
+                      "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                      "    pm.expect(jsonData).to.have.property(\"status\");",
+                      "    pm.expect(jsonData).to.have.property(\"error\");",
+                      "    pm.expect(jsonData).to.have.property(\"message\");",
+                      "    pm.expect(jsonData).to.have.property(\"path\");",
+                      "    pm.expect(jsonData).to.have.property(\"errors\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'status' do body é 400\", function () {",
+                      "    pm.expect(jsonData.status).to.eql(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'error' é 'Erro de validação na entrada de dados'\", function () {",
+                      "    pm.expect(jsonData.error).to.eql(\"Erro de validação na entrada de dados\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'path' é '/questions/1'\", function () {",
+                      "    pm.expect(jsonData.path).to.eql(\"/questions/1\");",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'timestamp' existe e não está vazio\", function () {",
+                      "    pm.expect(jsonData.timestamp).to.be.a(\"string\").and.to.not.be.empty;",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'errors' é um array não vazio\", function () {",
+                      "    pm.expect(jsonData.errors).to.be.an(\"array\").and.to.have.lengthOf.at.least(1);",
+                      "});",
+                      "",
+                      "pm.test(\"Erro de validação no campo 'statement'\", function () {",
+                      "    const statementError = jsonData.errors.find(e => e.fieldName === \"statement\");",
+                      "    pm.expect(statementError).to.not.be.undefined;",
+                      "    pm.expect(statementError.message).to.eql(\"Enunciado da questão é obrigatório\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"statement\":\"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/questions/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Questão - Duplicada (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "",
+                      "pm.test(\"Status code é 400 Bad Request (Barrar Duplicidade)\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\"Campo 'message' indica questão duplicada\", function () {",
+                      "    pm.expect(jsonData.message).to.equal(\"Questão já cadastrada\");",
+                      "});",
+                      "",
+                      "pm.test(\"Response body matches business error structure\", function () {",
+                      "    pm.expect(jsonData).to.have.property('timestamp');",
+                      "    pm.expect(jsonData).to.have.property('status', 400);",
+                      "    pm.expect(jsonData).to.have.property('error', \"Database error\");",
+                      "    pm.expect(jsonData).to.have.property('path');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"statement\":\"Enunciado da nova questão\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/questions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "questions"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Criar Nova Questão - Dados Válidos (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem propriedades esperadas\", function () {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'statement', 'options');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades da resposta são dados válidos\", function () {\r",
+                  "    pm.expect(resposta.id).to.be.a('number');\r",
+                  "    pm.expect(resposta.statement).to.be.a('string');\r",
+                  "    pm.expect(resposta.options).to.be.an('array').that.is.empty;\r",
+                  "});\r",
+                  "\r",
+                  "if (resposta.id) {\r",
+                  "    pm.environment.set(\"questionId\", resposta.id);\r",
+                  "    console.log(\"ID da Questão salvo para os próximos testes: \" + resposta.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"statement\": \"Qual a sua senioridade em desenvolvimento {{$randomInt}}?\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Alterar Questão - Mudança Enunciado (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();\r",
+                  "\r",
+                  "var novaQuestao = \"Questão alterada \" + timestamp;\r",
+                  "\r",
+                  "pm.variables.set(\"questaoEsperada\", novaQuestao);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem propriedades esperadas\", function() {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'statement', 'options');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades tem dados válidos\", function() {\r",
+                  "    pm.expect(resposta.id).to.be.a('number');\r",
+                  "\r",
+                  "    var questaoEsperada = pm.variables.get(\"questaoEsperada\");\r",
+                  "\r",
+                  "    pm.expect(questaoEsperada, \"A variável questaoEsperada não foi encontrada\").to.be.a('string');\r",
+                  "\r",
+                  "    pm.expect(resposta.statement, \"O enunciado da questão deve ser alterado\").to.equal(questaoEsperada);\r",
+                  "    pm.expect(resposta.options).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"statement\": \"{{questaoEsperada}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/questions/{{questionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions",
+                "{{questionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Todas as Questões (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;",
+                  "try {",
+                  "    resposta = pm.response.json();",
+                  "} catch (e) {",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type é application/json\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\");",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"A resposta é uma lista (array) e não está vazia\", function () {",
+                  "    pm.expect(resposta).to.be.an('array').that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Todas as questões da lista possuem dados válidos\", function () {",
+                  "    ",
+                  "    resposta.forEach(function (question, index) {",
+                  "        ",
+                  "        let flag = \"Erro na Questão ID: \" + (question.id || \"Desconhecido na posição \" + index);",
+                  "",
+                  "        pm.expect(question, flag + \" - Faltou a chave ID\").to.have.property('id').that.is.a('number');",
+                  "        pm.expect(question, flag + \" - Faltou o enunciado\").to.have.property('statement').that.is.a('string');",
+                  "        pm.expect(question, flag + \" - Faltou o array de opções\").to.have.property('options').that.is.an('array');",
+                  "",
+                  "        if (question.options.length > 0) {",
+                  "            question.options.forEach(function (option, optIndex) {",
+                  "                let flagOpt = flag + \", Opção [\" + optIndex + \"]\";",
+                  "                pm.expect(option, flagOpt + \" - Descrição inválida\").to.have.property('description').that.is.a('string');",
+                  "            });",
+                  "        }",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Questão por ID - Existente (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem as propriedades esperadas\", function () {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'statement', 'options');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades tem dados válidos\", function() {\r",
+                  "    pm.expect(resposta.id, \"O ID da resposta deve ser um número\").to.be.a('number');\r",
+                  "    pm.expect(resposta.statement, \"A declaração da resposta deve ser uma string\").to.be.a('string');\r",
+                  "    pm.expect(resposta.options, \"As opções da resposta devem ser um array\").to.be.an('array');\r",
+                  "\r",
+                  "    if (resposta.options.length > 0) {\r",
+                  "        resposta.options.forEach(function(option, index) {\r",
+                  "            pm.expect(option, `A opção no índice  ${index} deve ter uyma descrição`).to.have.property('description');\r",
+                  "            pm.expect(option.description, `A descrição da opção no índice ${index} deve ser uma string`).to.be.a('string');\r",
+                  "        });\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"statement\": \"{{questaoEsperada}}\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/questions/{{questionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions",
+                "{{questionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover Questão por ID - Sucesso (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  "var idDeletado = pm.environment.get(\"questionId\");\r",
+                  "\r",
+                  "if (idDeletado) {\r",
+                  "    var baseUrl = pm.environment.get(\"baseUrl\");\r",
+                  "    var token = pm.environment.get(\"tokenAdmin\");\r",
+                  "\r",
+                  "    pm.sendRequest({\r",
+                  "        url: baseUrl + \"/questions/\" + idDeletado,\r",
+                  "        method: 'GET',\r",
+                  "        header: {\r",
+                  "            'Authorization': 'Bearer ' + token\r",
+                  "        }\r",
+                  "    }, function (err, res) {\r",
+                  "        pm.test(\"Contraprova: Registro foi completamente removido (Retornou 404)\", function () {\r",
+                  "            pm.expect(res.code).to.equal(404);\r",
+                  "        });\r",
+                  "    });\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.unset(\"questionId\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/questions/{{questionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions",
+                "{{questionId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Options",
+      "item": [
+        {
+          "name": "01. Cenários Negativos",
+          "item": [
+            {
+              "name": "Buscar Opção por ID - Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response body matches 404 error structure\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    \r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "    pm.expect(jsonData.message).to.eql(\"Resource not found. Id 99999\");\r",
+                      "    pm.expect(jsonData.path).to.eql(\"/options/99999\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/options/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options",
+                    "99999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Opção - Dados Inválidos (400)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"description\": \"\",\r\n    \"weight\": 30,\r\n    \"questionId\": 1\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/options",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Opção - Questão-pai inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code é 404 Not Found\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Tempo de resposta é menor que 500ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna estrutura de erro 404 no corpo\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    \r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "    pm.expect(jsonData.message).to.contain(\"999\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"description\": \"Nova opção\",\r\n    \"weight\": 8,\r\n    \"questionId\": 999\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/options",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remover Opção - ID Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response body matches 404 error structure\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    \r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "    pm.expect(jsonData.message).to.eql(\"Resource not found. Id 999999\");\r",
+                      "    pm.expect(jsonData.path).to.eql(\"/options/999999\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/options/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options",
+                    "999999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Opção - Opção  Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response body matches 404 error structure\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    \r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "    pm.expect(jsonData.message).to.eql(\"Resource not found. Id 999999\");\r",
+                      "    pm.expect(jsonData.path).to.eql(\"/options/999999\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"description\": \"Nova opção alterada\",\r\n    \"weight\": 16\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/options/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options",
+                    "999999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Opção - Dados Inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400 Bad Request\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response body contains specific validation errors\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    \r",
+                      "    pm.expect(jsonData).to.have.property('errors');\r",
+                      "    pm.expect(jsonData.errors).to.be.an('array');\r",
+                      "    pm.expect(jsonData.errors.length).to.eql(2);\r",
+                      "\r",
+                      "    let descriptionError = jsonData.errors.find(e => e.fieldName === 'description');\r",
+                      "    let weightError = jsonData.errors.find(e => e.fieldName === 'weight');\r",
+                      "    \r",
+                      "    pm.expect(descriptionError).to.not.be.undefined;\r",
+                      "    pm.expect(descriptionError.message).to.eql(\"Opção não descrita\");\r",
+                      "    \r",
+                      "    pm.expect(weightError).to.not.be.undefined;\r",
+                      "    pm.expect(weightError.message).to.eql(\"O peso mínimo é 4\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"description\": \"\",\r\n    \"weight\": 2\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/options/2",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options",
+                    "2"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Opção - Duplicada (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400 Bad Request (Barrar Duplicidade)\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response body matches business error structure\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "\r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(400);\r",
+                      "    pm.expect(jsonData.message).to.be.a('string'); \r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"description\": \"Nova opção\",\r\n    \"weight\": 8,\r\n    \"questionId\": 1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/options",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "options"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "[SETUP] Criar questão host",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Setup: Questão Host criada com sucesso (201)\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "if (resposta && resposta.id) {\r",
+                  "    pm.environment.set(\"questaoHostId\", resposta.id);\r",
+                  "    console.log(\"Setup concluído! Questão Host ID: \" + resposta.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"statement\": \"Questão Hospedeira para testes de Options {{$timestamp}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cria Nova Opção - Dados Válidos (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = null;\r",
+                  "try {\r",
+                  "    jsonData = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Resposta não é um JSON válido\");\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "if (jsonData) {\r",
+                  "    pm.test(\"Resposta tem todas as propriedades esperadas\", function () {\r",
+                  "        pm.expect(jsonData).to.have.property('id');\r",
+                  "        pm.expect(jsonData).to.have.property('description');\r",
+                  "        pm.expect(jsonData).to.have.property('weight');\r",
+                  "    });\r",
+                  "\r",
+                  "    if (jsonData.id) {\r",
+                  "        pm.environment.set(\"optionId\", jsonData.id);\r",
+                  "    }\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"description\": \"Opcao teste {{$randomInt}}\",\r\n  \"weight\": 5,\r\n  \"questionId\": {{questaoHostId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "options"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Alterar Opção - Dados Válidos (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();\r",
+                  "\r",
+                  "var novaOpcao = \"Opção alterada \" + timestamp;\r",
+                  "\r",
+                  "pm.variables.set(\"opcaoEsperada\", novaOpcao);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem propriedades esperadas\", function() {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'description', 'weight');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades tem dados válidos\", function() {\r",
+                  "    pm.expect(resposta.id).to.be.a('number');\r",
+                  "\r",
+                  "    var opcaoEsperada = pm.variables.get(\"opcaoEsperada\");\r",
+                  "\r",
+                  "    pm.expect(opcaoEsperada, \"A variável questaoEsperada não foi encontrada\").to.be.a('string');\r",
+                  "\r",
+                  "    pm.expect(resposta.description, \"A descrição da opção deve ser alterada\").to.equal(opcaoEsperada);\r",
+                  "    pm.expect(resposta.weight, \"O peso deve ser alterado e estar no limite permitido\").to.be.a('number').and.to.be.within(4, 25);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"description\": \"{{opcaoEsperada}}\",\r\n    \"weight\": 16\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/options/{{optionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "options",
+                "{{optionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Todas as Opções (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type á application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta é uma lista (array) e não está vazia\", function() {\r",
+                  "    pm.expect(resposta).to.be.an('array').and.is.not.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Cada item do array tem dados válidos\", function() {\r",
+                  "    resposta.forEach(function(option, index) {\r",
+                  "\r",
+                  "        let flag = \"Erro na Opção ID: \" + (option.id || \"Desconhecido na posição \" + index);\r",
+                  "\r",
+                  "        pm.expect(option, flag + \" Faltou a chave ID\").to.have.property('id').and.be.a('number');\r",
+                  "        pm.expect(option, flag + \" Faltou a chave description\").to.have.property('description').and.be.a('string');\r",
+                  "        pm.expect(option, flag + \" Faltou a chave weight\").to.have.property('weight').and.be.a('number').and.to.be.within(4, 25);\r",
+                  "    });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "options"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Opção por ID - Existente (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem todas as propriedades esperadas\", function() {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'description', 'weight');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades tem dados válidos\", function() {\r",
+                  "    pm.expect(resposta.id).to.be.a('number');\r",
+                  "    pm.expect(resposta.description).to.be.a('string');\r",
+                  "    pm.expect(resposta.weight).to.be.a('number');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/options/{{optionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "options",
+                "{{optionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover Opção por ID - Sucesso (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  "var idDeletado = pm.environment.get(\"optionId\");\r",
+                  "\r",
+                  "if (idDeletado) {\r",
+                  "    var baseUrl = pm.environment.get(\"baseUrl\");\r",
+                  "    var token = pm.environment.get(\"tokenAdmin\");\r",
+                  "\r",
+                  "    pm.sendRequest({\r",
+                  "        url: baseUrl + \"/options/\" + idDeletado,\r",
+                  "        method: 'GET',\r",
+                  "        header: {\r",
+                  "            'Authorization': 'Bearer ' + token\r",
+                  "        }\r",
+                  "    }, function (err, res) {\r",
+                  "        pm.test(\"Contraprova: Registro foi completamente removido (Retornou 404)\", function () {\r",
+                  "            pm.expect(res.code).to.equal(404);\r",
+                  "        });\r",
+                  "    });\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.unset(\"optionId\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/options/{{optionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "options",
+                "{{optionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[TEARDOWN] Remover questão host",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  "var idDeletado = pm.environment.get(\"questaoHostId\");\r",
+                  "\r",
+                  "if (idDeletado) {\r",
+                  "    var baseUrl = pm.environment.get(\"baseUrl\");\r",
+                  "    var token = pm.environment.get(\"tokenAdmin\");\r",
+                  "\r",
+                  "    pm.sendRequest({\r",
+                  "        url: baseUrl + \"/questions/\" + idDeletado,\r",
+                  "        method: 'GET',\r",
+                  "        header: {\r",
+                  "            'Authorization': 'Bearer ' + token\r",
+                  "        }\r",
+                  "    }, function (err, res) {\r",
+                  "        pm.test(\"Contraprova: Registro foi completamente removido (Retornou 404)\", function () {\r",
+                  "            pm.expect(res.code).to.equal(404);\r",
+                  "        });\r",
+                  "    });\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.unset(\"questaoHostId\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/questions/{{questaoHostId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "questions",
+                "{{questaoHostId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Leads",
+      "item": [
+        {
+          "name": "[SETUP]",
+          "item": [
+            {
+              "name": "[SETUP] Criar Lead Cobaia",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var resposta;",
+                      "try {",
+                      "    resposta = pm.response.json();",
+                      "} catch (e) {",
+                      "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);",
+                      "}",
+                      "",
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test(\"Content-Type é application/json\", function () {",
+                      "    pm.response.to.have.header(\"Content-Type\");",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                      "});",
+                      "",
+                      "pm.test(\"Resposta contém todas as propriedades esperadas\", function () {",
+                      "    pm.expect(resposta).to.have.all.keys('id', 'name', 'email', 'phone', 'leadStatus', 'totalScore', 'title', 'message', 'assignedTo', 'answers');",
+                      "});",
+                      "",
+                      "pm.test(\"Tipos de dados das propriedades enviadas pelo lead estão corretos\", function () {",
+                      "    pm.expect(resposta.id).to.be.a('number');",
+                      "    pm.expect(resposta.name).to.be.a('string');",
+                      "    pm.expect(resposta.email).to.be.a('string').and.include('@');",
+                      "    pm.expect(resposta.phone).to.be.a('string').and.match(/^\\d{11}$/);",
+                      "    pm.expect(resposta.leadStatus).to.equal(\"NEW\");",
+                      "    pm.expect(resposta.totalScore).to.be.a('number');",
+                      "    pm.expect(resposta.title).to.be.a('string');",
+                      "    pm.expect(resposta.message).to.be.a('string');",
+                      "    pm.expect(resposta.assignedTo).to.be.a('string');",
+                      "});",
+                      "",
+                      "pm.test(\"O array de 'answers' é válido e seus itens possuem a estrutura adequada\", function () {",
+                      "    pm.expect(resposta.answers).to.be.an('array').and.not.empty;",
+                      "",
+                      "    resposta.answers.forEach(function (ans, index) {",
+                      "        pm.expect(ans).to.have.all.keys('quetionStatement', 'optionStatement');",
+                      "        pm.expect(ans.quetionStatement, `A questão no índice ${index} deve ser uma string`).to.be.a('string').and.not.empty;",
+                      "        pm.expect(ans.optionStatement, `A opção no índice ${index} deve ser uma string`).to.be.a('string').and.not.empty;",
+                      "    });",
+                      "});",
+                      "",
+                      "if (resposta.id) {",
+                      "    pm.collectionVariables.set(\"leadId\", resposta.id);",
+                      "    console.log(\"Lead Cobaia criado com sucesso e salvo na Collection! ID: \" + resposta.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"{{$randomFullName}}\",\r\n  \"email\": \"teste_{{$timestamp}}@gmail.com\",\r\n  \"phone\": \"16999999888\",\r\n  \"optionsId\": [3, 4, 7]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/leads",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "01. Regras de Negócio e Estados",
+          "item": [
+            {
+              "name": "Alterar Status do Lead - Novo para Contatado (204)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 204 No Content\", function () { \r",
+                      "    pm.response.to.have.status(204); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Corpo da resposta deve estar vazio\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.be.empty;\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/leads/{{leadId}}/contacted",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads",
+                    "{{leadId}}",
+                    "contacted"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "02. Cenários negativos",
+          "item": [
+            {
+              "name": "Tentar Criar Lead - E-mail Duplicado (409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 409 Conflict\", function () { \r",
+                      "    pm.response.to.have.status(409); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna mensagem de erro de conflito\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.status).to.eql(409);\r",
+                      "    // Garante que voltou uma mensagem de negócio (ex: \"E-mail já cadastrado\")\r",
+                      "    pm.expect(jsonData.message).to.be.a('string'); \r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Ricardo Alta Performance\",\r\n    \"email\": \"ricardo@diretoria.com\",\r\n    \"phone\": \"16999887766\",\r\n    \"optionsId\": [2, 6, 8]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/leads",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Lead - Campos Obrigatórios Vazios (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400 Bad Request\", function () { \r",
+                      "    pm.response.to.have.status(400); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna lista de erros de validação\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('errors');\r",
+                      "    pm.expect(jsonData.errors).to.be.an('array');\r",
+                      "    pm.expect(jsonData.errors.length).to.be.above(0); \r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"ricardoemail\",\r\n    \"phone\": \"16999\",\r\n    \"optionsId\": []\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/leads",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tentar Criar Lead - ID Opção Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () { \r",
+                      "    pm.response.to.have.status(404); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna estrutura padrão de erro 404\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Ricardo Alta Performance\",\r\n    \"email\": \"ricardo@chief.com\",\r\n    \"phone\": \"16999887766\",\r\n    \"optionsId\": [89760]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/leads",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar Lead por ID - Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () { \r",
+                      "    pm.response.to.have.status(404); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna estrutura padrão de erro 404\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/leads/9999999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads",
+                    "9999999999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Lead - Lead Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () { \r",
+                      "    pm.response.to.have.status(404); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna estrutura padrão de erro 404\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"Startup Alterada Inovadora Ltda\",\r\n  \"email\": \"contatoalterado@startup.com\",\r\n  \"phone\": \"16988888888\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/leads/9999999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads",
+                    "9999999999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Lead - Dados inválidos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400 Bad Request\", function () { \r",
+                      "    pm.response.to.have.status(400); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna lista de erros de validação\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('errors');\r",
+                      "    pm.expect(jsonData.errors).to.be.an('array');\r",
+                      "    pm.expect(jsonData.errors.length).to.be.above(0); \r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"ricardoemail\",\r\n    \"phone\": \"16999\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/leads/5",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads",
+                    "5"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Alterar Status - Lead inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () { \r",
+                      "    pm.response.to.have.status(404); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna estrutura padrão de erro 404\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/leads/9999/contacted",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads",
+                    "9999",
+                    "contacted"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remover Lead - ID Inexistente (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 404 Not Found\", function () { \r",
+                      "    pm.response.to.have.status(404); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 500ms\", function () { \r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(500); \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Retorna estrutura padrão de erro 404\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData).to.have.property('timestamp');\r",
+                      "    pm.expect(jsonData.status).to.eql(404);\r",
+                      "    pm.expect(jsonData.error).to.eql(\"Resource not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/leads/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "leads",
+                    "99999"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Atualizar Lead - Mudança de Dados Pessoais (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();\r",
+                  "var novoNome = \"Nome alterado \" + timestamp;\r",
+                  "var novoEmail = \"emailalterado\" + timestamp + \"@gmail.com\";\r",
+                  "var novoTelefone = \"11999\" + Math.floor(100000 + Math.random() * 900000);\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"nomeEsperado\", novoNome);\r",
+                  "pm.collectionVariables.set(\"emailEsperado\", novoEmail);\r",
+                  "pm.collectionVariables.set(\"telefoneEsperado\", novoTelefone);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "var nomeEsperado = pm.variables.get(\"nomeEsperado\");\r",
+                  "var emailEsperado = pm.variables.get(\"emailEsperado\");\r",
+                  "var telefoneEsperado = pm.variables.get(\"telefoneEsperado\");\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem todas as propriedades esperadas\", function () {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'name', 'email', 'phone', 'leadStatus', 'totalScore', 'title', 'message', 'assignedTo', 'answers');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades alteradas tem dados válidos\", function () {\r",
+                  "    pm.expect(resposta.name).to.be.a('string').and.to.equal(nomeEsperado);\r",
+                  "    pm.expect(resposta.email).to.be.a('string').and.include('@').and.to.equal(emailEsperado);\r",
+                  "    pm.expect(resposta.phone).to.be.a('string').and.match(/^\\d{11}$/).and.to.equal(telefoneEsperado);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades não alteradas mantiveram seu estado (Sem Efeito Colateral)\", function () {\r",
+                  "    var idEsperado = Number(pm.collectionVariables.get(\"leadId\"));\r",
+                  "    pm.expect(resposta.id, \"O Id do Lead não deve ser alterado\").to.equal(idEsperado);\r",
+                  "\r",
+                  "    pm.expect(resposta.leadStatus, \"O Status do Lead não deve ser alterado\").to.be.oneOf(['NEW', 'CONTACTED']);\r",
+                  "    pm.expect(resposta.totalScore, \"O Score do Lead não deve ser alterado\").to.be.a('number');\r",
+                  "    pm.expect(resposta.title, \"O Título do Lead não deve ser alterado\").to.be.oneOf(['HOT', 'WARM', 'COLD']);\r",
+                  "    pm.expect(resposta.message, \"A Mensagem do Lead não deve ser alterada\").to.be.a('string').and.not.empty;\r",
+                  "    pm.expect(resposta.assignedTo, \"O Lead não deve ser reatribuído\").to.be.a('string').and.not.empty;\r",
+                  "\r",
+                  "    pm.expect(resposta.answers).to.be.an('array').that.is.not.empty;\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{nomeEsperado}}\",\r\n  \"email\": \"{{emailEsperado}}\",\r\n  \"phone\": \"{{telefoneEsperado}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads/{{leadId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leads",
+                "{{leadId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Lead por ID - Existente (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resposta;\r",
+                  "try {\r",
+                  "    resposta = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "    console.error(\"Falha ao parsear o corpo da resposta como JSON:\", e.message);\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type é application/json\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\");\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta tem todas as propriedades esperadas\", function () {\r",
+                  "    pm.expect(resposta).to.have.all.keys('id', 'name', 'email', 'phone', 'leadStatus', 'totalScore', 'title', 'message', 'assignedTo', 'answers');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Propriedades tem dados válidos\", function () {\r",
+                  "    var idEsperado = Number(pm.collectionVariables.get(\"leadId\"));\r",
+                  "    pm.expect(resposta.id).to.equal(idEsperado);\r",
+                  "\r",
+                  "    pm.expect(resposta.name).to.be.a('string');\r",
+                  "    pm.expect(resposta.email).to.be.a('string').and.include('@');\r",
+                  "    pm.expect(resposta.phone).to.be.a('string').and.match(/^\\d{11}$/);\r",
+                  "    pm.expect(resposta.leadStatus).to.be.oneOf(['NEW', 'CONTACTED']);\r",
+                  "    pm.expect(resposta.totalScore).to.be.a('number');\r",
+                  "    pm.expect(resposta.title).to.be.oneOf(['HOT', 'WARM', 'COLD']);\r",
+                  "    pm.expect(resposta.message).to.be.a('string');\r",
+                  "    pm.expect(resposta.assignedTo).to.be.a('string').and.not.empty;\r",
+                  "    pm.expect(resposta.answers).to.be.an('array').that.is.not.empty;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads/{{leadId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leads",
+                "{{leadId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover Lead por ID - Sucesso (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  "var idDeletado = pm.environment.get(\"leadId\");\r",
+                  "\r",
+                  "if (idDeletado) {\r",
+                  "    var baseUrl = pm.environment.get(\"baseUrl\");\r",
+                  "    var token = pm.environment.get(\"tokenAdmin\"); \r",
+                  "\r",
+                  "    pm.sendRequest({\r",
+                  "        url: baseUrl + \"/leads/\" + idDeletado,\r",
+                  "        method: 'GET',\r",
+                  "        header: {\r",
+                  "            'Authorization': 'Bearer ' + token\r",
+                  "        }\r",
+                  "    }, function (err, res) {\r",
+                  "        pm.test(\"Contraprova: Registro foi completamente removido (Retornou 404)\", function () {\r",
+                  "            pm.expect(res.code).to.equal(404);\r",
+                  "        });\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.environment.unset(\"leadId\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads/{{leadId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leads",
+                "{{leadId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{tokenAdmin}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "leadId",
+      "value": ""
+    },
+    {
+      "key": "nomeEsperado",
+      "value": ""
+    },
+    {
+      "key": "emailEsperado",
+      "value": ""
+    },
+    {
+      "key": "telefoneEsperado",
+      "value": ""
+    }
+  ]
+}
