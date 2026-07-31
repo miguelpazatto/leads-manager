@@ -1,10 +1,13 @@
 package com.miguelpazatto.leadsmanager.resources.exceptions;
 
 import java.time.Instant;
+import java.util.Arrays;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,6 +17,7 @@ import com.miguelpazatto.leadsmanager.services.exceptions.BusinessException;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
@@ -24,6 +28,33 @@ public class ResourceExceptionHandler {
 		String error = "Resource not found";
 		HttpStatus status = HttpStatus.NOT_FOUND;
 		StandardError se = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(se);
+	}
+
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<StandardError> entityNotFound(EntityNotFoundException e, HttpServletRequest request) {
+		String error = "Resource not found";
+		HttpStatus status = HttpStatus.NOT_FOUND;
+		String message = e.getMessage() != null ? e.getMessage() : "Resource not found";
+		StandardError se = new StandardError(Instant.now(), status.value(), error, message, request.getRequestURI());
+		return ResponseEntity.status(status).body(se);
+	}
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<StandardError> httpMessageNotReadable(HttpMessageNotReadableException e, HttpServletRequest request) {
+		String error = "Requisição inválida";
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		String message = "Corpo da requisição JSON inválido ou malformado";
+
+		Throwable cause = e.getCause();
+		if (cause instanceof InvalidFormatException invalidFormat
+				&& invalidFormat.getTargetType() != null
+				&& invalidFormat.getTargetType().isEnum()) {
+			message = "Valor inválido para " + invalidFormat.getPathReference()
+					+ ". Valores aceitos: " + Arrays.toString(invalidFormat.getTargetType().getEnumConstants());
+		}
+
+		StandardError se = new StandardError(Instant.now(), status.value(), error, message, request.getRequestURI());
 		return ResponseEntity.status(status).body(se);
 	}
 	

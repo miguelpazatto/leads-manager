@@ -66,7 +66,7 @@ public class SalesmanResource {
 	@PutMapping(value = "/{id}")
 	@Operation(summary = "Altera um Vendedor", description = "Substitui os dados de um vendedor no banco de dados")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "Vendedor alterado com sucesso"),
+			@ApiResponse(responseCode = "200", description = "Vendedor alterado com sucesso"),
 			@ApiResponse(responseCode = "400", description = "Erro de validação (dados enviados incorretos)"),
 			@ApiResponse(responseCode = "404", description = "ID do Vendedor não foi encontrado")
 	})

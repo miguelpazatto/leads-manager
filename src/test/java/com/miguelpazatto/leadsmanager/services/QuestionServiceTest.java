@@ -109,6 +109,7 @@ class QuestionServiceTest {
                 "Enunciado a ser incluido na questão nova"
         );
 
+        given(questionRepository.existsByStatement(questionRequestDTO.statement())).willReturn(false);
         given(questionRepository.save(any(Question.class))).willReturn(question);
 
         QuestionDTO questionDTO = questionService.insert(questionRequestDTO);
@@ -122,6 +123,23 @@ class QuestionServiceTest {
 
         assertThat(questionDTO.id()).isEqualTo(question.getId());
         assertThat(questionDTO.statement()).isEqualTo(question.getStatement());
+
+        verify(questionRepository, times(1)).existsByStatement(questionRequestDTO.statement());
+    }
+
+    @Test
+    @DisplayName("Deve lançar DatabaseException quando a questão já estiver cadastrada")
+    void cannotInsertQuestion_WhenStatementAlreadyExists_ThrowDatabaseException() {
+        QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO("Enunciado duplicado");
+
+        given(questionRepository.existsByStatement(questionRequestDTO.statement())).willReturn(true);
+
+        assertThatThrownBy(() -> questionService.insert(questionRequestDTO))
+                .isInstanceOf(DatabaseException.class)
+                .hasMessageContaining("Questão já cadastrada");
+
+        verify(questionRepository, times(1)).existsByStatement(questionRequestDTO.statement());
+        verify(questionRepository, never()).save(any());
     }
 
     @Test

@@ -37,23 +37,18 @@ public class OptionService {
 		Optional<Option> option = repository.findById(id);
 		return option.map(OptionResponseDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
-	
-	public OptionResponseDTO insert(OptionRequestDTO dto) {
-        try {
-            Option option = new Option();
-            option.setDescription(dto.description());
-            option.setWeight(dto.weight());
 
-            Question question = questionRepository.getReferenceById(dto.questionId());
-            option.setQuestion(question);
+	public OptionResponseDTO insert(OptionRequestDTO data) {
+		Question question = questionRepository.findById(data.questionId())
+				.orElseThrow(() -> new ResourceNotFoundException(data.questionId()));
 
-            option = repository.save(option);
+		if (repository.existsByDescription(data.description())) {
+			throw new DatabaseException("Opção já cadastrada");
+		}
 
-            return new OptionResponseDTO(option);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(dto.questionId());
-        }
-    }
+		Option obj = new Option(null, data.description(), data.weight(), question);
+		return new OptionResponseDTO(repository.save(obj));
+	}
 	
 	public void delete(Long id) {
 		if (!repository.existsById(id)) {

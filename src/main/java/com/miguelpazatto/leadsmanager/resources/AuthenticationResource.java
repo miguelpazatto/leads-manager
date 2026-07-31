@@ -66,11 +66,11 @@ public class AuthenticationResource {
 	public ResponseEntity register(@RequestBody @Valid RegisterDTO data, UriComponentsBuilder uriBuilder) {
 		if (repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 		
-		User newUser = authorizationService.register(data);
+		UserResponseDTO response = authorizationService.register(data);
 		
-		URI uri = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
+		URI uri = uriBuilder.path("/users/{id}").buildAndExpand(response.userId()).toUri();
 		
-		return ResponseEntity.created(uri).body(new UserResponseDTO(newUser));
+		return ResponseEntity.created(uri).body(response);
 		
 	}
 	

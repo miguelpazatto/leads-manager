@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.miguelpazatto.leadsmanager.dto.RegisterDTO;
+import com.miguelpazatto.leadsmanager.dto.UserResponseDTO;
 import com.miguelpazatto.leadsmanager.entities.Salesman;
 import com.miguelpazatto.leadsmanager.entities.User;
 import com.miguelpazatto.leadsmanager.entities.enums.UserRole;
@@ -19,7 +20,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @Service
-public class AuthorizationService implements UserDetailsService {
+public class 	AuthorizationService implements UserDetailsService {
 
 	@Autowired
 	private UserRepository repository;
@@ -36,7 +37,7 @@ public class AuthorizationService implements UserDetailsService {
 	}
 
 	@Transactional
-	public User register(@Valid RegisterDTO data) {
+	public UserResponseDTO register(@Valid RegisterDTO data) {
 		
 		String encryptedPassword = passwordEncoder.encode(data.password());
 		User newUser = new User(data.login(), encryptedPassword, data.role());
@@ -48,14 +49,18 @@ public class AuthorizationService implements UserDetailsService {
 			if (data.name() == null || data.email() == null || data.phone() == null) {
 				throw new BusinessException("Dados de vendedor (nome, email, telefone) são obrigatórios para colaboradores.");
 			}
-			
-			Salesman salesman = new Salesman(null, data.name(), data.email(), data.phone(), newUser);
-			
+
+			Salesman salesman = new Salesman();
+			salesman.setUser(newUser);
+			salesman.setName(data.name());
+			salesman.setEmail(data.email());
+			salesman.setPhone(data.phone());
+
 			salesmanRepository.save(salesman);
-			
+			return new UserResponseDTO(salesman);
 		}
 		
-		return newUser;
+		return new UserResponseDTO(newUser);
 		
 	}
 	

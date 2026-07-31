@@ -144,7 +144,8 @@ class OptionServiceTest {
                 question
         );
 
-        given(questionRepository.getReferenceById(questionId)).willReturn(question);
+        given(optionRepository.existsByDescription(dto.description())).willReturn(false);
+        given(questionRepository.findById(questionId)).willReturn(Optional.of(question));
         given(optionRepository.save(any(Option.class))).willReturn(option);
 
         OptionResponseDTO optionResponseDTO = optionService.insert(dto);
@@ -160,6 +161,24 @@ class OptionServiceTest {
         assertThat(capturedOption.getDescription()).isEqualTo("Enunciado inserido");
         assertThat(capturedOption.getWeight()).isEqualTo(8);
         assertThat(capturedOption.getQuestion().getId()).isEqualTo(question.getId());
+
+        verify(optionRepository, times(1)).existsByDescription(dto.description());
+    }
+
+    @Test
+    @DisplayName("Deve lançar DatabaseException quando a opção já estiver cadastrada")
+    void cannotInsertOption_WhenDescriptionAlreadyExists_ThrowDatabaseException() {
+        OptionRequestDTO dto = new OptionRequestDTO("Enunciado duplicado", 8, 1L);
+
+        given(optionRepository.existsByDescription(dto.description())).willReturn(true);
+
+        assertThatThrownBy(() -> optionService.insert(dto))
+                .isInstanceOf(DatabaseException.class)
+                .hasMessageContaining("Opção já cadastrada");
+
+        verify(optionRepository, times(1)).existsByDescription(dto.description());
+        verify(questionRepository, never()).findById(anyLong());
+        verify(optionRepository, never()).save(any());
     }
 
     @Test
@@ -169,12 +188,15 @@ class OptionServiceTest {
         Long invalidQuestionId = 999L;
         OptionRequestDTO dto = new OptionRequestDTO("Enunciado", 8, invalidQuestionId);
 
-        given(questionRepository.getReferenceById(invalidQuestionId))
-                .willThrow(new EntityNotFoundException());
+        given(optionRepository.existsByDescription(dto.description())).willReturn(false);
+        given(questionRepository.findById(invalidQuestionId)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.insert(dto))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Resource not found");
+                .hasMessageContaining("Resource not found. Id " + invalidQuestionId);
+
+        verify(questionRepository, times(1)).findById(invalidQuestionId);
+        verify(optionRepository, never()).save(any());
     }
 
     @Test

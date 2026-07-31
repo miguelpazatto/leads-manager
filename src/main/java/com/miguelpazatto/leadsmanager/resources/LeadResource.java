@@ -85,8 +85,7 @@ public class LeadResource {
 	@Operation(summary = "Deleta um Lead", description = "Deleta um lead no banco de dados vinculado a um vendedor")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Lead deletada com sucesso"),
-			@ApiResponse(responseCode = "404", description = "ID da Lead não foi encontrado"),
-			@ApiResponse(responseCode = "400", description = "Houve violação da integridade do banco de dados")
+			@ApiResponse(responseCode = "404", description = "ID do Lead não foi encontrado")
 	})
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);

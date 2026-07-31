@@ -6,4 +6,6 @@ import com.miguelpazatto.leadsmanager.entities.Question;
 
 public interface QuestionRepository extends JpaRepository<Question, Long>{
 
+	boolean existsByStatement(String statement);
+
 }

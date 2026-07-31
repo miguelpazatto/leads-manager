@@ -33,6 +33,9 @@ public class QuestionService {
 	}
 	
 	public QuestionDTO insert(QuestionRequestDTO data) {
+		if (repository.existsByStatement(data.statement())) {
+			throw new DatabaseException("Questão já cadastrada");
+		}
 		Question obj = new Question(null, data.statement());
 		return new QuestionDTO(repository.save(obj));
 	}

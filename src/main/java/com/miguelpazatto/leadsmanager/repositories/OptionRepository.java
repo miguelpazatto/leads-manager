@@ -6,4 +6,6 @@ import com.miguelpazatto.leadsmanager.entities.Option;
 
 public interface OptionRepository extends JpaRepository<Option, Long>{
 
+	boolean existsByDescription(String description);
+
 }

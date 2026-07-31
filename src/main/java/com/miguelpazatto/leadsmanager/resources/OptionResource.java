@@ -72,8 +72,7 @@ public class OptionResource {
 	@Operation(summary = "Deleta uma Opção", description = "Deleta uma opção no banco de dados vinculada a uma questão")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Opção deletada com sucesso"),
-			@ApiResponse(responseCode = "404", description = "ID da Opção não foi encontrado"),
-			@ApiResponse(responseCode = "400", description = "Houve violação da integridade do banco de dados")
+			@ApiResponse(responseCode = "404", description = "ID da Opção não foi encontrado")
 	})
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);

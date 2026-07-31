@@ -58,8 +58,7 @@ public class QuestionResource {
 	@Operation(summary = "Cria uma nova Questão", description = "Insere uma nova questão no banco de dados")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "201", description = "Questão criada com sucesso"),
-			@ApiResponse(responseCode = "400", description = "Erro de validação (dados enviados incorretos)"),
-			@ApiResponse(responseCode = "404", description = "ID da Questão não foi encontrada")
+			@ApiResponse(responseCode = "400", description = "Erro de validação (dados enviados incorretos)")
 	})
 	public ResponseEntity<QuestionDTO> insert(@RequestBody @Valid QuestionRequestDTO data) {
 		QuestionDTO dto = service.insert(data);
@@ -86,7 +85,7 @@ public class QuestionResource {
 			@ApiResponse(responseCode = "404", description = "ID da Questão não foi encontrado"),
 			@ApiResponse(responseCode = "400", description = "Erro de validação (dados enviados incorretos)")
 	})
-	public ResponseEntity<QuestionDTO> update(@PathVariable Long id, @RequestBody QuestionRequestDTO data) {
+	public ResponseEntity<QuestionDTO> update(@PathVariable Long id, @RequestBody @Valid QuestionRequestDTO data) {
 		QuestionDTO dto = service.update(id, data);
 		return ResponseEntity.ok().body(dto);
 	}
