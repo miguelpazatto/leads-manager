@@ -226,7 +226,7 @@ public class LeadResourceIT {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(leadRequestDTO)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Erro por conflito com dados"))
+                .andExpect(jsonPath("$.error").value("Conflito de dados"))
                 .andExpect(jsonPath("$.message").value("Email enviado já existente"));
     }
 

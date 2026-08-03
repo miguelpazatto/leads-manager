@@ -8,6 +8,7 @@ import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.OptionRepository;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,18 +168,21 @@ class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar DatabaseException quando a opção já estiver cadastrada")
+    @DisplayName("Deve lançar ConflictException quando a opção já estiver cadastrada")
     void cannotInsertOption_WhenDescriptionAlreadyExists_ThrowDatabaseException() {
         OptionRequestDTO dto = new OptionRequestDTO("Enunciado duplicado", 8, 1L);
+
+        Question question = new Question(1L, "Questão teste");
+        given(questionRepository.findById(1L)).willReturn(Optional.of(question));
 
         given(optionRepository.existsByDescription(dto.description())).willReturn(true);
 
         assertThatThrownBy(() -> optionService.insert(dto))
-                .isInstanceOf(DatabaseException.class)
+                .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("Opção já cadastrada");
 
         verify(optionRepository, times(1)).existsByDescription(dto.description());
-        verify(questionRepository, never()).findById(anyLong());
+        verify(questionRepository, times(1)).findById(1L);
         verify(optionRepository, never()).save(any());
     }
 
@@ -188,7 +193,6 @@ class OptionServiceTest {
         Long invalidQuestionId = 999L;
         OptionRequestDTO dto = new OptionRequestDTO("Enunciado", 8, invalidQuestionId);
 
-        given(optionRepository.existsByDescription(dto.description())).willReturn(false);
         given(questionRepository.findById(invalidQuestionId)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.insert(dto))

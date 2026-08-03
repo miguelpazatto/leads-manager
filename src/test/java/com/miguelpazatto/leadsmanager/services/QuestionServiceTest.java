@@ -4,6 +4,7 @@ import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
 import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import com.miguelpazatto.leadsmanager.services.exceptions.DatabaseException;
 import com.miguelpazatto.leadsmanager.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -128,14 +129,14 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar DatabaseException quando a questão já estiver cadastrada")
+    @DisplayName("Deve lançar ConflictException quando a questão já estiver cadastrada")
     void cannotInsertQuestion_WhenStatementAlreadyExists_ThrowDatabaseException() {
         QuestionRequestDTO questionRequestDTO = new QuestionRequestDTO("Enunciado duplicado");
 
         given(questionRepository.existsByStatement(questionRequestDTO.statement())).willReturn(true);
 
         assertThatThrownBy(() -> questionService.insert(questionRequestDTO))
-                .isInstanceOf(DatabaseException.class)
+                .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("Questão já cadastrada");
 
         verify(questionRepository, times(1)).existsByStatement(questionRequestDTO.statement());
