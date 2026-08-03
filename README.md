@@ -59,6 +59,7 @@ User (1) ──────── (1) Salesman
 | Documentação | SpringDoc OpenAPI (Swagger UI) |
 | Tratamento de Erros | ControllerAdvice (JSONs padronizados 400/409) |
 | Deploy | Render (Conteinerizado com Docker) |
+| 📋 Veja também a [suíte de testes de QA](./postman/README.md) — testes manuais e semi-automatizados no Postman, incluindo bugs reais encontrados e corrigidos.
 
 ---
 
