@@ -3,6 +3,7 @@ package com.miguelpazatto.leadsmanager.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -31,10 +32,10 @@ public class QuestionService {
 		Optional<Question> obj = repository.findById(id);
 		return obj.map(QuestionDTO::new).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
-	
+
 	public QuestionDTO insert(QuestionRequestDTO data) {
 		if (repository.existsByStatement(data.statement())) {
-			throw new DatabaseException("Questão já cadastrada");
+			throw new ConflictException("Questão já cadastrada");
 		}
 		Question obj = new Question(null, data.statement());
 		return new QuestionDTO(repository.save(obj));

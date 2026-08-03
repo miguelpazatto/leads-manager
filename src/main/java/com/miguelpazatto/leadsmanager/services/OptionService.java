@@ -3,6 +3,7 @@ package com.miguelpazatto.leadsmanager.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class OptionService {
 				.orElseThrow(() -> new ResourceNotFoundException(data.questionId()));
 
 		if (repository.existsByDescription(data.description())) {
-			throw new DatabaseException("Opção já cadastrada");
+			throw new ConflictException("Opção já cadastrada");
 		}
 
 		Option obj = new Option(null, data.description(), data.weight(), question);

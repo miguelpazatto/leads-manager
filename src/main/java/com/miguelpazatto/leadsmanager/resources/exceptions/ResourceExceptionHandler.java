@@ -89,10 +89,10 @@ public class ResourceExceptionHandler {
 
 	@ExceptionHandler(ConflictException.class)
 	public ResponseEntity<StandardError> conflict(ConflictException e, HttpServletRequest request) {
-		String error = "Erro por conflito com dados";
-		HttpStatus status = HttpStatus.CONFLICT;
-		ValidationError ve = new ValidationError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
-		return ResponseEntity.status(status).body(ve);
+		String error = "Conflito de dados";
+		HttpStatus status = HttpStatus.CONFLICT; // 409
+		StandardError se = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(se);
 	}
 
 }

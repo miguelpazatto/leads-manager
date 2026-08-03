@@ -2,6 +2,7 @@ package com.miguelpazatto.leadsmanager.resources;
 
 import java.net.URI;
 
+import com.miguelpazatto.leadsmanager.services.exceptions.ConflictException;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -64,14 +65,15 @@ public class AuthenticationResource {
 	@Hidden
 	@PostMapping("/register")
 	public ResponseEntity register(@RequestBody @Valid RegisterDTO data, UriComponentsBuilder uriBuilder) {
-		if (repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
-		
+		if (repository.findByLogin(data.login()) != null) {
+			throw new ConflictException("Login já cadastrado");
+		}
+
 		UserResponseDTO response = authorizationService.register(data);
-		
+
 		URI uri = uriBuilder.path("/users/{id}").buildAndExpand(response.userId()).toUri();
-		
+
 		return ResponseEntity.created(uri).body(response);
-		
 	}
 	
 }
