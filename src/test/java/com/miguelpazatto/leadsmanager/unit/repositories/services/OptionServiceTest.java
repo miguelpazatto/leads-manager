@@ -1,4 +1,4 @@
-package com.miguelpazatto.leadsmanager.services;
+package com.miguelpazatto.leadsmanager.unit.repositories.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;

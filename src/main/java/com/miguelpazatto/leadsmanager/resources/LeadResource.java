@@ -114,5 +114,4 @@ public class LeadResource {
 			service.markAsContacted(id);
 			return ResponseEntity.noContent().build();	
 	}
-	
 }

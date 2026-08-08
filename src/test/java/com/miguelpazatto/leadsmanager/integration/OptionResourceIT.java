@@ -1,8 +1,7 @@
-package com.miguelpazatto.leadsmanager.resources;
+package com.miguelpazatto.leadsmanager.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.OptionRequestDTO;
-import com.miguelpazatto.leadsmanager.dto.OptionResponseDTO;
 import com.miguelpazatto.leadsmanager.dto.OptionUpdateDTO;
 import com.miguelpazatto.leadsmanager.entities.Option;
 import com.miguelpazatto.leadsmanager.entities.Question;
@@ -18,8 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;

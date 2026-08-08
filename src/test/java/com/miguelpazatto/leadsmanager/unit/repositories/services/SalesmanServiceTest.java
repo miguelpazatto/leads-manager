@@ -1,4 +1,4 @@
-package com.miguelpazatto.leadsmanager.services;
+package com.miguelpazatto.leadsmanager.unit.repositories.services;
 
 import com.miguelpazatto.leadsmanager.dto.LeadDTO;
 import com.miguelpazatto.leadsmanager.dto.SalesmanDTO;

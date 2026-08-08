@@ -1,4 +1,4 @@
-package com.miguelpazatto.leadsmanager.resources;
+package com.miguelpazatto.leadsmanager.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miguelpazatto.leadsmanager.dto.SalesmanUpdateDTO;
