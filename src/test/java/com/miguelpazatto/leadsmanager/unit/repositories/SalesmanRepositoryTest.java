@@ -1,4 +1,4 @@
-package com.miguelpazatto.leadsmanager.repositories;
+package com.miguelpazatto.leadsmanager.unit.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

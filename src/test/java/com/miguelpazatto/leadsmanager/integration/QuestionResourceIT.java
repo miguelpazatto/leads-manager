@@ -1,7 +1,6 @@
-package com.miguelpazatto.leadsmanager.resources;
+package com.miguelpazatto.leadsmanager.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miguelpazatto.leadsmanager.dto.QuestionDTO;
 import com.miguelpazatto.leadsmanager.dto.QuestionRequestDTO;
 import com.miguelpazatto.leadsmanager.entities.Question;
 import com.miguelpazatto.leadsmanager.repositories.QuestionRepository;
@@ -15,11 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
